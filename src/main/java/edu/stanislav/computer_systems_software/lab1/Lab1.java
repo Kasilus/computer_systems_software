@@ -4,9 +4,7 @@ import edu.stanislav.computer_systems_software.lab1.lexer.Lexer;
 import edu.stanislav.computer_systems_software.lab1.lexer.LexicalException;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.Lexeme;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class Lab1 {
 
@@ -15,7 +13,7 @@ public class Lab1 {
     public static void main(String[] args) {
 
         // TODO: read from CL or/and GUI
-        String expression = "(A+B)+C/D+G+(K/L?+M+N) * sin(A-B)";
+        String expression = "(A+B)+C/D+G+(K/L+M+N) * sin(A-B)";
         System.out.println("INPUT EXPRESSION\n" + expression);
 
         // lexer
@@ -30,7 +28,7 @@ public class Lab1 {
         }
 
         if (lexemes != null) {
-            System.out.println("Lexemes");
+            System.out.println("\nLEXEMES");
             lexemes.forEach(System.out::println);
         }
 

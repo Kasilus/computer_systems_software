@@ -7,7 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class Lexer {
 
@@ -23,19 +22,20 @@ public class Lexer {
         String currentString = "";
         while (pointer < expression.length()) {
             char currentCharacter = expression.charAt(pointer);
-            // check whitespace
-            if (isCurrentCharacterIsDivider(currentCharacter) || pointer == expression.length() - 1) {
-                // check variable, constant, keyWords (more one character)
+            // check if allowed
+            if (!isCharacterAllowed(currentCharacter)) {
+                throw new LexicalException("Unknown character! Regexp = " + allowedCharactersRegexp, pointer);
+            }
+
+            if (isCharacterIsDivider(currentCharacter) || pointer == expression.length() - 1) {
                 if (!currentString.isEmpty()) {
-                    // keywords
+                    // add not divider [keyword, constant, variable]
                     if (keyWords.contains(currentString)) {
                         lexemes.add(GrammarLexemeFactory.createMathFuncLexeme(currentString));
                     } else if (StringUtils.isNumeric(currentString)) {
                         lexemes.add(GrammarLexemeFactory.createConstantLexeme(currentString));
                     } else {
-                        // check constant
-                        Pattern pattern = Pattern.compile(variableRegexp);
-                        if (pattern.matcher(currentString).matches()) {
+                        if (currentString.matches(variableRegexp)) {
                             lexemes.add(GrammarLexemeFactory.createVariableLexeme(currentString));
                         } else {
                             throw new LexicalException("Wrong variable name! Regexp = " + variableRegexp, pointer - currentString.length() + 1);
@@ -43,25 +43,30 @@ public class Lexer {
                     }
                 }
 
+                // add divider [arithmetic, quote]
                 if (arithmeticOperators.contains(currentCharacter)) {
                     lexemes.add(GrammarLexemeFactory.createArithmeticLexeme(currentCharacter));
                 } else if (quotes.contains(currentCharacter)) {
                     lexemes.add(GrammarLexemeFactory.createQuoteLexeme(currentCharacter));
+                } else if (currentCharacter != ' '){
+                    throw new LexicalException("Unknown error", pointer);
                 }
+
                 currentString = "";
             } else {
-                if (Character.toString(currentCharacter).matches(allowedCharactersRegexp)) {
-                    currentString += currentCharacter;
-                } else {
-                    throw new LexicalException("Wrong character! Regexp = " + allowedCharactersRegexp, pointer);
-                }
+                currentString += currentCharacter;
             }
             pointer++;
         }
         return lexemes;
     }
 
-    private boolean isCurrentCharacterIsDivider(char currentCharacter) {
+    private boolean isCharacterAllowed(char currentCharacter) {
+        return isCharacterIsDivider(currentCharacter) ||
+                Character.toString(currentCharacter).matches(allowedCharactersRegexp);
+    }
+
+    private boolean isCharacterIsDivider(char currentCharacter) {
         return currentCharacter == ' ' ||
                 arithmeticOperators.contains(currentCharacter) ||
                 quotes.contains(currentCharacter);

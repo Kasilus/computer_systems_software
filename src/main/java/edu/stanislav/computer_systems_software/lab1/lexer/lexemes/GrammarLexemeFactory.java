@@ -1,6 +1,5 @@
 package edu.stanislav.computer_systems_software.lab1.lexer.lexemes;
 
-import edu.stanislav.computer_systems_software.lab1.lexer.LexicalException;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.arithmetic.*;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.math.CosMathFunctionLexeme;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.math.MathFunctionLexeme;
