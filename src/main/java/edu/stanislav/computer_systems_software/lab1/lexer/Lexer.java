@@ -13,6 +13,7 @@ public class Lexer {
     private List<Character> arithmeticOperators = new ArrayList<>(Arrays.asList('+', '-', '*', '/'));
     private List<Character> quotes = new ArrayList<>(Arrays.asList('(', ')'));
     private List<String> keyWords = new ArrayList<>(Arrays.asList("sin", "cos", "tg"));
+    // TODO: change regexp on BNF
     private String variableRegexp = "[_A-Za-z][_A-Za-z0-9]*";
     private String allowedCharactersRegexp = "[A-Za-z0-9_]";
 
@@ -32,13 +33,16 @@ public class Lexer {
                     // add not divider [keyword, constant, variable]
                     if (keyWords.contains(currentString)) {
                         lexemes.add(GrammarLexemeFactory.createMathFuncLexeme(currentString));
+                        lexemes.get(lexemes.size() - 1).setIndex(pointer);
                     } else if (StringUtils.isNumeric(currentString)) {
                         lexemes.add(GrammarLexemeFactory.createConstantLexeme(currentString));
+                        lexemes.get(lexemes.size() - 1).setIndex(pointer);
                     } else {
                         if (currentString.matches(variableRegexp)) {
                             lexemes.add(GrammarLexemeFactory.createVariableLexeme(currentString));
+                            lexemes.get(lexemes.size() - 1).setIndex(pointer - currentString.length());
                         } else {
-                            throw new LexicalException("Wrong variable name! Regexp = " + variableRegexp, pointer - currentString.length() + 1);
+                            throw new LexicalException("Wrong variable name! Regexp = " + variableRegexp, pointer - currentString.length());
                         }
                     }
                 }
@@ -46,8 +50,10 @@ public class Lexer {
                 // add divider [arithmetic, quote]
                 if (arithmeticOperators.contains(currentCharacter)) {
                     lexemes.add(GrammarLexemeFactory.createArithmeticLexeme(currentCharacter));
+                    lexemes.get(lexemes.size() - 1).setIndex(pointer);
                 } else if (quotes.contains(currentCharacter)) {
                     lexemes.add(GrammarLexemeFactory.createQuoteLexeme(currentCharacter));
+                    lexemes.get(lexemes.size() - 1).setIndex(pointer);
                 } else if (currentCharacter != ' '){
                     throw new LexicalException("Unknown error", pointer);
                 }
