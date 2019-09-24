@@ -28,8 +28,9 @@ public class Lexer {
                 throw new LexicalException("Unknown character! Regexp = " + allowedCharactersRegexp, pointer);
             }
 
-            if (isCharacterIsDivider(currentCharacter) || pointer == expression.length() - 1) {
-                if (!currentString.isEmpty()) {
+            if (!isCharacterIsDivider(currentCharacter)) {
+                currentString += currentCharacter;
+                if (isNextCharacterIsDivider(expression, pointer) || !isNextCharacterExists(expression, pointer)) {
                     // add not divider [keyword, constant, variable]
                     if (keyWords.contains(currentString)) {
                         lexemes.add(GrammarLexemeFactory.createMathFuncLexeme(currentString));
@@ -46,8 +47,9 @@ public class Lexer {
                         }
                     }
                 }
-
-                // add divider [arithmetic, quote]
+            } else {
+                currentString = "";
+                // add divider [arithmetic, quote] or skip [space]
                 if (arithmeticOperators.contains(currentCharacter)) {
                     lexemes.add(GrammarLexemeFactory.createArithmeticLexeme(currentCharacter));
                     lexemes.get(lexemes.size() - 1).setIndex(pointer);
@@ -57,10 +59,6 @@ public class Lexer {
                 } else if (currentCharacter != ' '){
                     throw new LexicalException("Unknown error", pointer);
                 }
-
-                currentString = "";
-            } else {
-                currentString += currentCharacter;
             }
             pointer++;
         }
@@ -76,6 +74,21 @@ public class Lexer {
         return currentCharacter == ' ' ||
                 arithmeticOperators.contains(currentCharacter) ||
                 quotes.contains(currentCharacter);
+    }
+
+    private boolean isNextCharacterIsDivider(String expression, int currentIndex) {
+        if (expression.length() < currentIndex + 1) {
+            char nextCharacter = expression.charAt(currentIndex + 1);
+            return isCharacterIsDivider(nextCharacter);
+        }
+        return false;
+    }
+
+    private boolean isNextCharacterExists(String expression, int currentIndex) {
+        if (expression.length() < currentIndex + 1) {
+            return true;
+        }
+        return false;
     }
 
 }
