@@ -63,6 +63,8 @@ public class Parser {
             term.setChildren(new ArrayList<>(Collections.singletonList(checkMath())));
         } else if (this.currentLexeme instanceof LeftQuoteLexeme) {
             term.setChildren(new ArrayList<>(Collections.singletonList(checkExpressionInQuotes())));
+        } else if (this.currentLexeme == null){
+            throw new ParseException("Bad end for expression. Should be term after this lexeme", lastLexemeIndex);
         } else {
             throw new ParseException("Wrong lexeme! There should be variable, constant, math func or left quote for new expression start", currentLexeme.getIndex());
         }
