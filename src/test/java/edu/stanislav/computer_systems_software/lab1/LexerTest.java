@@ -81,6 +81,8 @@ public class LexerTest {
         expectedLexemes.add(new PlusOperatorLexeme());
         expectedLexemes.add(new PlusOperatorLexeme());
         expectedLexemes.add(new ConstantLexeme("12"));
+        assertEquals(lexemes.size(), expectedLexemes.size());
+        assertTrue(compareLexemes(lexemes, expectedLexemes));
     }
 
     @Test

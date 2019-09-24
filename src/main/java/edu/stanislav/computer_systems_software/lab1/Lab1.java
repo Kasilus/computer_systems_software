@@ -12,7 +12,7 @@ public class Lab1 {
     public static void main(String[] args) {
 
         // TODO: read from CL or/and GUI
-        String expression = "12 *  A - 300";
+        String expression = "(2 + (2 - 2 * (3 + 15 / (12 + A))))";
         System.out.println("INPUT EXPRESSION\n" + expression);
 
         Lexer lexer = new Lexer();
