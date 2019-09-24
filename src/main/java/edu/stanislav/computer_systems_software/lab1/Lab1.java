@@ -3,7 +3,9 @@ package edu.stanislav.computer_systems_software.lab1;
 import edu.stanislav.computer_systems_software.lab1.lexer.Lexer;
 import edu.stanislav.computer_systems_software.lab1.lexer.LexicalException;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.Lexeme;
+import edu.stanislav.computer_systems_software.lab1.parser.ParseException;
 import edu.stanislav.computer_systems_software.lab1.parser.Parser;
+import edu.stanislav.computer_systems_software.lab1.parser.TreeNode;
 
 import java.util.List;
 
@@ -36,9 +38,19 @@ public class Lab1 {
 
         // parser
         Parser parser = new Parser();
-        parser.parse(lexemes);
+        TreeNode rootNode = null;
+        try {
+            rootNode = parser.parse(lexemes);
+        } catch (ParseException e) {
+            String indexString = generateIndexString(e.getIndex());
+            System.out.println(indexString);
+            System.out.println(e);
+        }
 
         // print tree
+        if (rootNode != null) {
+            System.out.println(rootNode.getTree());
+        }
     }
 
     private static String generateIndexString(int exceptionIndex) {

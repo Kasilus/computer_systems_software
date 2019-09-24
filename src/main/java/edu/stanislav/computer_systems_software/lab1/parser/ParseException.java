@@ -19,7 +19,7 @@ public class ParseException extends Exception {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", LexicalException.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", ParseException.class.getSimpleName() + "[", "]")
                 .add("message=" + getMessage())
                 .add("index=" + index)
                 .toString();
