@@ -31,72 +31,53 @@ public class Parser {
     private TreeNode checkExpression() throws ParseException {
         TreeNode expression = new TreeNode();
         expression.setTreeNodeType(TreeNode.TreeNodeType.EXPRESSION);
-        List<TreeNode> children = new ArrayList<>();
-        TreeNode term1 = checkTerm();
-        children.add(term1);
-        TreeNode addOp = checkAddOp();
-        if (addOp != null) {
-            children.add(addOp);
-            TreeNode term2 = checkTerm();
-            children.add(term2);
+        expression.setChildren(new ArrayList<>(Collections.singletonList(checkAddOp())));
+        return expression;
+    }
+
+    private TreeNode checkAddOp() throws ParseException {
+        TreeNode expression = checkMulOp();
+        if (this.currentLexeme instanceof PlusOperatorLexeme || this.currentLexeme instanceof MinusOperatorLexeme) {
+            List<TreeNode> children = new ArrayList<>();
+            children.add(expression);
+            expression = new TreeNode();
+            expression.setTreeNodeType(TreeNode.TreeNodeType.ADDOP);
+            expression.setLexeme(currentLexeme);
+            nextLexeme();
+            children.add(checkAddOp());
+            expression.setChildren(children);
         }
-        expression.setChildren(children);
         return expression;
     }
 
     private TreeNode checkTerm() throws ParseException {
         TreeNode term = new TreeNode();
         term.setTreeNodeType(TreeNode.TreeNodeType.TERM);
-        List<TreeNode> children = new ArrayList<>();
-        TreeNode primary1 = checkPrimary();
-        children.add(primary1);
-        TreeNode mulOp = checkMulOp();
-        if (mulOp != null) {
-            children.add(mulOp);
-            TreeNode primary2 = checkPrimary();
-            children.add(primary2);
-        }
-        term.setChildren(children);
-        return term;
-    }
-
-    private TreeNode checkAddOp() {
-        TreeNode addOp = null;
-        if (this.currentLexeme instanceof PlusOperatorLexeme || this.currentLexeme instanceof MinusOperatorLexeme) {
-            addOp = new TreeNode();
-            addOp.setTreeNodeType(TreeNode.TreeNodeType.ADDOP);
-            addOp.setChildren(new ArrayList<>());
-            addOp.setLexeme(this.currentLexeme);
-            nextLexeme();
-        }
-        return addOp;
-    }
-
-    private TreeNode checkPrimary() throws ParseException {
-        TreeNode primary = new TreeNode();
-        primary.setTreeNodeType(TreeNode.TreeNodeType.PRIMARY);
         if (this.currentLexeme instanceof VariableLexeme) {
-            primary.setChildren(new ArrayList<>(Collections.singletonList(checkIdentifier())));
+            term.setChildren(new ArrayList<>(Collections.singletonList(checkIdentifier())));
         } else if (this.currentLexeme instanceof ConstantLexeme) {
-            primary.setChildren(new ArrayList<>(Collections.singletonList(checkConstant())));
+            term.setChildren(new ArrayList<>(Collections.singletonList(checkConstant())));
         } else if (this.currentLexeme instanceof MathFunctionLexeme) {
-            primary.setChildren(new ArrayList<>(Collections.singletonList(checkMath())));
+            term.setChildren(new ArrayList<>(Collections.singletonList(checkMath())));
         } else if (this.currentLexeme instanceof LeftQuoteLexeme) {
-            primary.setChildren(checkExpressionInQuotes());
+            term.setChildren(new ArrayList<>(Collections.singletonList(checkExpressionInQuotes())));
         } else {
             throw new ParseException("Wrong lexeme! There should be variable, constant, math func or left quote for new expression start", currentLexeme.getIndex());
         }
-        return primary;
+        return term;
     }
 
-    private TreeNode checkMulOp() {
-        TreeNode mulOp = null;
+    private TreeNode checkMulOp() throws ParseException {
+        TreeNode mulOp = checkTerm();
         if (this.currentLexeme instanceof MultiplyOperatorLexeme || this.currentLexeme instanceof DivideOperatorLexeme) {
+            List<TreeNode> children = new ArrayList<>();
+            children.add(mulOp);
             mulOp = new TreeNode();
             mulOp.setTreeNodeType(TreeNode.TreeNodeType.MULOP);
-            mulOp.setChildren(new ArrayList<>());
             mulOp.setLexeme(this.currentLexeme);
             nextLexeme();
+            children.add(checkMulOp());
+            mulOp.setChildren(children);
         }
         return mulOp;
     }
@@ -163,12 +144,14 @@ public class Parser {
             return mathExpr;
         }
         if (this.currentLexeme instanceof LeftQuoteLexeme) {
-            mathExpr.setChildren(checkExpressionInQuotes());
+            mathExpr.setChildren(new ArrayList<>(Collections.singletonList(checkExpressionInQuotes())));
         }
         return mathExpr;
     }
 
-    private List<TreeNode> checkExpressionInQuotes() throws ParseException {
+    private TreeNode checkExpressionInQuotes() throws ParseException {
+        TreeNode expressionInQuotes = new TreeNode();
+        expressionInQuotes.setTreeNodeType(TreeNode.TreeNodeType.EXPRESSION_IN_QUOTES);
         List<TreeNode> children = new ArrayList<>();
         TreeNode leftQuote = new TreeNode();
         leftQuote.setTreeNodeType(TreeNode.TreeNodeType.LEFT_QUOTE);
@@ -190,7 +173,8 @@ public class Parser {
         children.add(leftQuote);
         children.add(expression);
         children.add(rightQuote);
-        return children;
+        expressionInQuotes.setChildren(children);
+        return expressionInQuotes;
     }
 
     private void nextLexeme() {

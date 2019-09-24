@@ -16,7 +16,7 @@ public class Lab1 {
     public static void main(String[] args) {
 
         // TODO: read from CL or/and GUI
-        String expression = "A + B*(C/ D) * sin (G20 - 23)";
+        String expression = "A + B * C + (2 * 3)";
         System.out.println("INPUT EXPRESSION\n" + expression);
 
         // lexer
