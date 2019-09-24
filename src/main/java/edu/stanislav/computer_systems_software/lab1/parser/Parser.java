@@ -27,6 +27,9 @@ public class Parser {
         this.lexemeIterator = lexemes.iterator();
         nextLexeme();
         TreeNode root = checkExpression();
+        if (this.currentLexeme != null) {
+            throw new ParseException("End of expression", this.currentLexeme.getIndex());
+        }
         return root;
     }
 
