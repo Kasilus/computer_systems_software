@@ -46,9 +46,9 @@ public class Lexer {
                             throw new LexicalException("Wrong variable name! Regexp = " + variableRegexp, pointer - currentString.length());
                         }
                     }
+                    currentString = "";
                 }
             } else {
-                currentString = "";
                 // add divider [arithmetic, quote] or skip [space]
                 if (arithmeticOperators.contains(currentCharacter)) {
                     lexemes.add(GrammarLexemeFactory.createArithmeticLexeme(currentCharacter));
