@@ -1,9 +1,7 @@
 package edu.stanislav.computer_systems_software.lab1;
 
 import edu.stanislav.computer_systems_software.lab1.lexer.Lexer;
-import edu.stanislav.computer_systems_software.lab1.lexer.LexicalException;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.Lexeme;
-import edu.stanislav.computer_systems_software.lab1.parser.ParseException;
 import edu.stanislav.computer_systems_software.lab1.parser.Parser;
 import edu.stanislav.computer_systems_software.lab1.parser.TreeNode;
 
@@ -22,20 +20,13 @@ public class Lab1 {
         // lexer
         Lexer lexer = new Lexer();
         List<Lexeme> lexemes = null;
-        try {
-            lexemes = lexer.analyzeExpression(expression);
-        } catch (LexicalException e) {
-            String indexString = generateIndexString(e.getIndex());
-            System.out.println(indexString);
-            System.out.println(e);
-        }
-
         // parser
         Parser parser = new Parser();
         TreeNode rootNode = null;
         try {
+            lexemes = lexer.analyzeExpression(expression);
             rootNode = parser.parse(lexemes);
-        } catch (ParseException e) {
+        } catch (CompilerException e) {
             String indexString = generateIndexString(e.getIndex());
             System.out.println(indexString);
             System.out.println(e);
