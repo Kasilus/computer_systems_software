@@ -9,18 +9,14 @@ import java.util.List;
 
 public class Lab1 {
 
-    // arithmetic
-
     public static void main(String[] args) {
 
         // TODO: read from CL or/and GUI
-        String expression = "sin (##";
+        String expression = "12 + ) A )))";
         System.out.println("INPUT EXPRESSION\n" + expression);
 
-        // lexer
         Lexer lexer = new Lexer();
         List<Lexeme> lexemes = null;
-        // parser
         Parser parser = new Parser();
         TreeNode rootNode = null;
         try {
@@ -32,7 +28,6 @@ public class Lab1 {
             System.out.println(e);
         }
 
-        // output
         if (lexemes != null) {
             System.out.println("\nLEXEMES");
             lexemes.forEach(System.out::println);

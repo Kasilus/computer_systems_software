@@ -43,7 +43,7 @@ public class Lexer {
                             lexemes.add(GrammarLexemeFactory.createVariableLexeme(currentString));
                             lexemes.get(lexemes.size() - 1).setIndex(pointer - currentString.length());
                         } else {
-                            throw new LexicalException("Wrong variable name! Regexp = " + variableRegexp, pointer - currentString.length());
+                            throw new LexicalException("Wrong variable name! Regexp = " + variableRegexp, pointer - currentString.length() + 1);
                         }
                     }
                     currentString = "";
