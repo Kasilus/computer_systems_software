@@ -13,8 +13,11 @@ import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.quotes.RightQu
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.valuable.ConstantLexeme;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.valuable.HasValue;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.valuable.VariableLexeme;
+
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +33,9 @@ public class LexerTest {
     public void init() {
         lexer = new Lexer();
     }
+
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
 
     @Test
     public void simpleExpression() throws LexicalException {
@@ -64,6 +70,33 @@ public class LexerTest {
         expectedLexemes.add(new ConstantLexeme("4"));
         assertEquals(lexemes.size(), expectedLexemes.size());
         assertTrue(compareLexemes(lexemes, expectedLexemes));
+    }
+
+    @Test
+    public void simpleExpressionWithLotOfWhiteSpaces() throws LexicalException {
+        String expression = "3 ++        12";
+        List<Lexeme> lexemes = lexer.analyzeExpression(expression);
+        List<Lexeme> expectedLexemes = new ArrayList<>();
+        expectedLexemes.add(new ConstantLexeme("3"));
+        expectedLexemes.add(new PlusOperatorLexeme());
+        expectedLexemes.add(new PlusOperatorLexeme());
+        expectedLexemes.add(new ConstantLexeme("12"));
+    }
+
+    @Test
+    public void wrongCharacter() throws LexicalException {
+        exceptionRule.expect(LexicalException.class);
+        exceptionRule.expectMessage("Unknown character");
+        String expression = "sin (# + 5) * 300";
+        lexer.analyzeExpression(expression);
+    }
+
+    @Test
+    public void wrongVariableName() throws LexicalException {
+        exceptionRule.expect(LexicalException.class);
+        exceptionRule.expectMessage("Wrong variable name");
+        String expression = "A * 1B - D";
+        lexer.analyzeExpression(expression);
     }
 
     private boolean compareLexemes(List<Lexeme> actual, List<Lexeme> expected) {
