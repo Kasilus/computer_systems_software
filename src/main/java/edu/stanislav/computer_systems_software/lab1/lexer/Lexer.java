@@ -77,7 +77,7 @@ public class Lexer {
     }
 
     private boolean isNextCharacterIsDivider(String expression, int currentIndex) {
-        if (expression.length() < currentIndex + 1) {
+        if (expression.length() > currentIndex + 1) {
             char nextCharacter = expression.charAt(currentIndex + 1);
             return isCharacterIsDivider(nextCharacter);
         }
@@ -85,10 +85,7 @@ public class Lexer {
     }
 
     private boolean isNextCharacterExists(String expression, int currentIndex) {
-        if (expression.length() < currentIndex + 1) {
-            return true;
-        }
-        return false;
+        return expression.length() > currentIndex + 1;
     }
 
 }
