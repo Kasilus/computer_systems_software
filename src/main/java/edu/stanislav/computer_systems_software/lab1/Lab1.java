@@ -17,7 +17,7 @@ public class Lab1 {
 
         // TODO: read from CL or/and GUI
 //        String expression = "190+(_12A+B)+C/D+G+(K/L+M+N) * sin(A-B)";
-        String expression = "A + B*(C/ D)";
+        String expression = "A + B*(C/ D";
         System.out.println("INPUT EXPRESSION\n" + expression);
 
         // lexer
@@ -31,11 +31,6 @@ public class Lab1 {
             System.out.println(e);
         }
 
-        if (lexemes != null) {
-            System.out.println("\nLEXEMES");
-            lexemes.forEach(System.out::println);
-        }
-
         // parser
         Parser parser = new Parser();
         TreeNode rootNode = null;
@@ -47,8 +42,14 @@ public class Lab1 {
             System.out.println(e);
         }
 
-        // print tree
+        // output
+        if (lexemes != null) {
+            System.out.println("\nLEXEMES");
+            lexemes.forEach(System.out::println);
+        }
+
         if (rootNode != null) {
+            System.out.println("\nPARSE TREE");
             System.out.println(rootNode.getTree());
         }
     }
