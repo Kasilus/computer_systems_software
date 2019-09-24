@@ -26,7 +26,7 @@ public class Parser {
     public TreeNode parse(List<Lexeme> lexemes) throws ParseException {
         this.lexemes = lexemes;
         this.lexemeIterator = lexemes.iterator();
-        this.currentLexeme = lexemeIterator.next();
+        nextLexeme();
         TreeNode root = checkExpression();
         return root;
     }
@@ -81,12 +81,17 @@ public class Parser {
             leftQuote.setLexeme(currentLexeme);
             this.currentLexeme = lexemeIterator.next();
             TreeNode expression = checkExpression();
-            TreeNode rightQuote = new TreeNode();
-            // check right
-            rightQuote.setTreeNodeType(TreeNode.TreeNodeType.RIGHT_QUOTE);
-            rightQuote.setChildren(new ArrayList<>());
-            rightQuote.setLexeme(currentLexeme);
-            this.currentLexeme = lexemeIterator.next();
+            TreeNode rightQuote = null;
+            if (this.currentLexeme instanceof RightQuoteLexeme) {
+                rightQuote = new TreeNode();
+                // check right
+                rightQuote.setTreeNodeType(TreeNode.TreeNodeType.RIGHT_QUOTE);
+                rightQuote.setChildren(new ArrayList<>());
+                rightQuote.setLexeme(this.currentLexeme);
+                nextLexeme();
+            } else {
+                throw new ParseException("Should be closing parentheses", this.currentLexeme.getIndex());
+            }
             children.add(leftQuote);
             children.add(expression);
             children.add(rightQuote);
@@ -104,7 +109,7 @@ public class Parser {
             addOp.setTreeNodeType(TreeNode.TreeNodeType.ADDOP);
             addOp.setChildren(new ArrayList<>());
             addOp.setLexeme(this.currentLexeme);
-            this.currentLexeme = lexemeIterator.next();
+            nextLexeme();
         }
         return addOp;
     }
@@ -116,7 +121,7 @@ public class Parser {
             mulOp.setTreeNodeType(TreeNode.TreeNodeType.MULOP);
             mulOp.setChildren(new ArrayList<>());
             mulOp.setLexeme(this.currentLexeme);
-            this.currentLexeme = lexemeIterator.next();
+            nextLexeme();
         }
         return mulOp;
     }
@@ -140,7 +145,7 @@ public class Parser {
             mathFunc.setTreeNodeType(TreeNode.TreeNodeType.MATHFUNC);
             mathFunc.setChildren(new ArrayList<>());
             mathFunc.setLexeme(currentLexeme);
-            this.currentLexeme = lexemeIterator.next();
+            nextLexeme();
         }
         return mathFunc;
     }
@@ -165,7 +170,7 @@ public class Parser {
             leftQuote.setTreeNodeType(TreeNode.TreeNodeType.LEFT_QUOTE);
             leftQuote.setChildren(new ArrayList<>());
             leftQuote.setLexeme(this.currentLexeme);
-            this.currentLexeme = lexemeIterator.next();
+            nextLexeme();
             TreeNode expression = checkExpression();
             TreeNode rightQuote = null;
             if (this.currentLexeme instanceof RightQuoteLexeme) {
@@ -174,7 +179,7 @@ public class Parser {
                 rightQuote.setTreeNodeType(TreeNode.TreeNodeType.RIGHT_QUOTE);
                 rightQuote.setChildren(new ArrayList<>());
                 rightQuote.setLexeme(this.currentLexeme);
-                this.currentLexeme = lexemeIterator.next();
+                nextLexeme();
             } else {
                 throw new ParseException("Should be closing parentheses", this.currentLexeme.getIndex());
             }
@@ -193,7 +198,7 @@ public class Parser {
             identifier.setTreeNodeType(TreeNode.TreeNodeType.IDENTIFIER);
             identifier.setChildren(new ArrayList<>());
             identifier.setLexeme(currentLexeme);
-            this.currentLexeme = lexemeIterator.next();
+            nextLexeme();
         }
         return identifier;
     }
@@ -205,8 +210,15 @@ public class Parser {
             constant.setTreeNodeType(TreeNode.TreeNodeType.CONSTANT);
             constant.setChildren(new ArrayList<>());
             constant.setLexeme(currentLexeme);
-            this.currentLexeme = lexemeIterator.next();
+            nextLexeme();
         }
         return constant;
+    }
+
+    private void nextLexeme() {
+        if (lexemeIterator.hasNext()) {
+            this.currentLexeme = lexemeIterator.next();
+
+        }
     }
 }
