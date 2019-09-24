@@ -20,8 +20,10 @@ public class Parser {
 
     private Iterator<Lexeme> lexemeIterator = null;
     private Lexeme currentLexeme = null;
+    private int lastLexemeIndex = 0;
 
     public TreeNode parse(List<Lexeme> lexemes) throws ParseException {
+        lastLexemeIndex = lexemes.get(lexemes.size() - 1).getIndex();
         this.lexemeIterator = lexemes.iterator();
         nextLexeme();
         TreeNode root = checkExpression();
@@ -168,7 +170,11 @@ public class Parser {
             rightQuote.setLexeme(this.currentLexeme);
             nextLexeme();
         } else {
-            throw new ParseException("Should be closing parentheses", this.currentLexeme.getIndex());
+            if (this.currentLexeme != null) {
+                throw new ParseException("Should be closing parentheses", this.currentLexeme.getIndex());
+            } else {
+                throw new ParseException("Should be closing parentheses", lastLexemeIndex);
+            }
         }
         children.add(leftQuote);
         children.add(expression);
@@ -180,7 +186,8 @@ public class Parser {
     private void nextLexeme() {
         if (lexemeIterator.hasNext()) {
             this.currentLexeme = lexemeIterator.next();
-
+        } else {
+            this.currentLexeme = null;
         }
     }
 }
