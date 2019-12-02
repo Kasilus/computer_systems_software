@@ -64,6 +64,20 @@ public class Parser {
             term.setChildren(new ArrayList<>(Collections.singletonList(checkConstant())));
         } else if (this.currentLexeme instanceof MathFunctionLexeme) {
             term.setChildren(new ArrayList<>(Collections.singletonList(checkMath())));
+//        } else if(this.currentLexeme instanceof MinusOperatorLexeme) {
+//            List<TreeNode> children = new ArrayList<>();
+//            TreeNode unary = new TreeNode();
+//            unary.setTreeNodeType(TreeNode.TreeNodeType.UNARY);
+//            unary.setChildren(new ArrayList<>());
+//            unary.setLexeme(this.currentLexeme);
+//            children.add(unary);
+//            nextLexeme();
+//            TreeNode varOrConst = checkIdentifier();
+//            if (varOrConst == null) {
+//                varOrConst = checkConstant();
+//            }
+//            children.add(varOrConst);
+//            term.setChildren(children);
         } else if (this.currentLexeme instanceof LeftQuoteLexeme) {
             term.setChildren(new ArrayList<>(Collections.singletonList(checkExpressionInQuotes())));
         } else if (this.currentLexeme == null){

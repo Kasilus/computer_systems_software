@@ -8,7 +8,10 @@ import java.util.StringJoiner;
 
 public class TreeNode {
 
-    enum TreeNodeType {EXPRESSION, TERM, IDENTIFIER, ADDOP, MULOP, MATH, MATHFUNC, MATHEXPR, CONSTANT, LEFT_QUOTE, RIGHT_QUOTE, EXPRESSION_IN_QUOTES}
+    enum TreeNodeType {EXPRESSION, TERM, IDENTIFIER, ADDOP, MULOP, MATH, MATHFUNC, MATHEXPR, CONSTANT,
+        LEFT_QUOTE, RIGHT_QUOTE, EXPRESSION_IN_QUOTES
+//        , UNARY
+    }
 
     private TreeNodeType treeNodeType;
     private List<TreeNode> children;

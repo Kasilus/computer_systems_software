@@ -4,6 +4,7 @@ public class Lab1 {
     public static void main(String[] args) {
         ExpressionAnalyzer expressionAnalyzer = new ExpressionAnalyzer();
         String expression = "(2 + (2 - 2 * (3 + 15 / (12 + A))))";
+        String expression2 = "-p2a *(-5)+(-12.3*b/C_4x)";
         expressionAnalyzer.analyzeExpression(expression);
         expressionAnalyzer.printResults();
     }

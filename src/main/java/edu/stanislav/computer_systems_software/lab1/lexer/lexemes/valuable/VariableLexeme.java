@@ -1,5 +1,6 @@
 package edu.stanislav.computer_systems_software.lab1.lexer.lexemes.valuable;
 
+import edu.stanislav.computer_systems_software.Constants;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.Lexeme;
 
 import java.util.StringJoiner;
@@ -19,8 +20,12 @@ public class VariableLexeme extends Lexeme implements HasValue {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", VariableLexeme.class.getSimpleName() + "[", "]")
-                .add("value='" + value + "'")
-                .toString();
+        if(Constants.FULL_LEXEME_PRINT) {
+            return new StringJoiner(", ", VariableLexeme.class.getSimpleName() + "[", "]")
+                    .add("value='" + value + "'")
+                    .toString();
+        } else {
+            return getValue();
+        }
     }
 }

@@ -3,6 +3,7 @@ package edu.stanislav.computer_systems_software.lab1.lexer;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.GrammarLexemeFactory;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.Lexeme;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +14,6 @@ public class Lexer {
     private List<Character> arithmeticOperators = new ArrayList<>(Arrays.asList('+', '-', '*', '/'));
     private List<Character> quotes = new ArrayList<>(Arrays.asList('(', ')'));
     private List<String> keyWords = new ArrayList<>(Arrays.asList("sin", "cos", "tg"));
-    // TODO: change regexp on BNF
     private String variableRegexp = "[_A-Za-z][_A-Za-z0-9]*";
     private String allowedCharactersRegexp = "[A-Za-z0-9_]";
 
@@ -35,7 +35,7 @@ public class Lexer {
                     if (keyWords.contains(currentString)) {
                         lexemes.add(GrammarLexemeFactory.createMathFuncLexeme(currentString));
                         lexemes.get(lexemes.size() - 1).setIndex(pointer);
-                    } else if (StringUtils.isNumeric(currentString)) {
+                    } else if (NumberUtils.isCreatable(currentString)) {
                         lexemes.add(GrammarLexemeFactory.createConstantLexeme(currentString));
                         lexemes.get(lexemes.size() - 1).setIndex(pointer);
                     } else {
