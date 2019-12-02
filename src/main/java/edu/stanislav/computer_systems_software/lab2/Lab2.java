@@ -81,6 +81,22 @@ public class Lab2 {
         // backward polish notation with sin, cos, unary '-'
 
         // build expression tree
+        Stack<Node> expressionTreeStack = new Stack<>();
+        Node operatorNode;
+        for (Lexeme lexeme: outLexemes) {
+            if (lexeme instanceof HasValue) {
+                expressionTreeStack.push(new Node(lexeme));
+                continue;
+            }
+            operatorNode = new Node(lexeme);
+            operatorNode.setRightChild(expressionTreeStack.pop());
+            operatorNode.setLeftChild(expressionTreeStack.pop());
+            expressionTreeStack.push(operatorNode);
+        }
 
+        operatorNode = expressionTreeStack.pop();
+        System.out.println(operatorNode);
+
+        // output
     }
 }
