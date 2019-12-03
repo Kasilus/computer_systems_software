@@ -2,6 +2,10 @@ package edu.stanislav.computer_systems_software.lab2;
 
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.Lexeme;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.arithmetic.*;
+import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.math.CosMathFunctionLexeme;
+import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.math.MathFunctionLexeme;
+import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.math.SinMathFunctionLexeme;
+import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.math.TgMathFunctionLexeme;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.quotes.LeftQuoteLexeme;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.quotes.RightQuoteLexeme;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.valuable.HasValue;
@@ -23,6 +27,9 @@ public class BackwardPolishNotationUtils {
         operationPriorities.put(MinusOperatorLexeme.class, 1);
         operationPriorities.put(MultiplyOperatorLexeme.class, 2);
         operationPriorities.put(DivideOperatorLexeme.class, 2);
+        operationPriorities.put(SinMathFunctionLexeme.class, 3);
+        operationPriorities.put(CosMathFunctionLexeme.class, 3);
+        operationPriorities.put(TgMathFunctionLexeme.class, 3);
         for (Lexeme lexeme: lexemes) {
             System.out.println("Current lexeme = " + lexeme);
             System.out.println("outLexemes = " + outLexemes);
@@ -32,19 +39,19 @@ public class BackwardPolishNotationUtils {
                 outLexemes.add(lexeme);
                 continue;
             }
-            if (lexeme instanceof ArithmeticOperatorLexeme) {
+            if (lexeme instanceof ArithmeticOperatorLexeme || lexeme instanceof MathFunctionLexeme) {
                 Lexeme previousLexeme = null;
                 if (!operatorsStack.isEmpty()) {
                     previousLexeme = operatorsStack.pop();
                 }
-                if (previousLexeme instanceof ArithmeticOperatorLexeme && operationPriorities.get(previousLexeme.getClass()) != operationPriorities.get(lexeme.getClass())) {
+                if ((previousLexeme instanceof ArithmeticOperatorLexeme || previousLexeme instanceof MathFunctionLexeme) && !operationPriorities.get(previousLexeme.getClass()).equals(operationPriorities.get(lexeme.getClass()))) {
                     while (operationPriorities.get(previousLexeme.getClass()) >= operationPriorities.get(lexeme.getClass())){
                         outLexemes.add(previousLexeme);
                         if (operatorsStack.isEmpty()) {
                             break;
                         }
                         previousLexeme = operatorsStack.pop();
-                        if (!(previousLexeme instanceof ArithmeticOperatorLexeme)) {
+                        if (!(previousLexeme instanceof ArithmeticOperatorLexeme) && !(previousLexeme instanceof MathFunctionLexeme)) {
                             break;
                         }
                     }
@@ -82,7 +89,9 @@ public class BackwardPolishNotationUtils {
             }
             operatorNode = new Node(lexeme);
             operatorNode.setRightChild(expressionTreeStack.pop());
-            operatorNode.setLeftChild(expressionTreeStack.pop());
+            if (!(operatorNode.currentLexeme instanceof MathFunctionLexeme)) {
+                operatorNode.setLeftChild(expressionTreeStack.pop());
+            }
             expressionTreeStack.push(operatorNode);
         }
 

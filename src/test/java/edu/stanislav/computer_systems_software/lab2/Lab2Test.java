@@ -34,6 +34,13 @@ public class Lab2Test {
         assertEquals("AB+CD/-GKL/MN++*+", BPNString);
     }
 
+    @Test
+    public void testBPN_arithmetic_with_math_funcs_hard() {
+        String input = "(A + 8 * sin(B * 15)) / (C + tg(D))";
+        String BPNString = getBPNString(input);
+        assertEquals("A8B15*sin*+CDtg+/", BPNString);
+    }
+
     private String getBPNString(String input) {
         expressionAnalyzer.analyzeExpression(input);
         List<Lexeme> lexemes = expressionAnalyzer.getLexemes();

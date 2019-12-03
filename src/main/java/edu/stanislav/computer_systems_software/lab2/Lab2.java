@@ -8,7 +8,7 @@ import java.util.*;
 public class Lab2 {
     public static void main(String[] args) {
 
-        String expression = "(A+B)-C/D+G*(K/L+M+N)";
+        String expression = "(A + 8 * sin(B * 15)) / (C + tg(D))";
         ExpressionAnalyzer analyzer = new ExpressionAnalyzer();
         analyzer.analyzeExpression(expression);
 //        analyzer.printLexemes();
