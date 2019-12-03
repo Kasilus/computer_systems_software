@@ -55,6 +55,21 @@ public class Parser {
         return expression;
     }
 
+    private TreeNode checkMulOp() throws ParseException {
+        TreeNode mulOp = checkTerm();
+        if (this.currentLexeme instanceof MultiplyOperatorLexeme || this.currentLexeme instanceof DivideOperatorLexeme) {
+            List<TreeNode> children = new ArrayList<>();
+            children.add(mulOp);
+            mulOp = new TreeNode();
+            mulOp.setTreeNodeType(TreeNode.TreeNodeType.MULOP);
+            mulOp.setLexeme(this.currentLexeme);
+            nextLexeme();
+            children.add(checkMulOp());
+            mulOp.setChildren(children);
+        }
+        return mulOp;
+    }
+
     private TreeNode checkTerm() throws ParseException {
         TreeNode term = new TreeNode();
         term.setTreeNodeType(TreeNode.TreeNodeType.TERM);
@@ -86,21 +101,6 @@ public class Parser {
             throw new ParseException("Wrong lexeme! There should be variable, constant, math func or left quote for new expression start", currentLexeme.getIndex());
         }
         return term;
-    }
-
-    private TreeNode checkMulOp() throws ParseException {
-        TreeNode mulOp = checkTerm();
-        if (this.currentLexeme instanceof MultiplyOperatorLexeme || this.currentLexeme instanceof DivideOperatorLexeme) {
-            List<TreeNode> children = new ArrayList<>();
-            children.add(mulOp);
-            mulOp = new TreeNode();
-            mulOp.setTreeNodeType(TreeNode.TreeNodeType.MULOP);
-            mulOp.setLexeme(this.currentLexeme);
-            nextLexeme();
-            children.add(checkMulOp());
-            mulOp.setChildren(children);
-        }
-        return mulOp;
     }
 
     private TreeNode checkIdentifier() {
