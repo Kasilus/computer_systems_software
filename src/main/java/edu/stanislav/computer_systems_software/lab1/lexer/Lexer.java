@@ -15,7 +15,7 @@ public class Lexer {
     private List<Character> quotes = new ArrayList<>(Arrays.asList('(', ')'));
     private List<String> keyWords = new ArrayList<>(Arrays.asList("sin", "cos", "tg"));
     private String variableRegexp = "[_A-Za-z][_A-Za-z0-9]*";
-    private String allowedCharactersRegexp = "[A-Za-z0-9_]";
+    private String allowedCharactersRegexp = "[A-Za-z0-9_.]";
 
     public List<Lexeme> analyzeExpression(String expression) throws LexicalException {
         List<Lexeme> lexemes = new ArrayList<>();

@@ -101,6 +101,45 @@ public class LexerTest {
         lexer.analyzeExpression(expression);
     }
 
+    @Test
+    public void simpleExpressionWithFractionalDigit() throws LexicalException {
+        String expression = "A + 15.3 - B";
+        List<Lexeme> lexemes = lexer.analyzeExpression(expression);
+        List<Lexeme> expectedLexemes = new ArrayList<>();
+        expectedLexemes.add(new VariableLexeme("A"));
+        expectedLexemes.add(new PlusOperatorLexeme());
+        expectedLexemes.add(new ConstantLexeme("15.3"));
+        expectedLexemes.add(new MinusOperatorLexeme());
+        expectedLexemes.add(new VariableLexeme("B"));
+        assertEquals(lexemes.size(), expectedLexemes.size());
+        assertTrue(compareLexemes(lexemes, expectedLexemes));
+    }
+
+    @Test
+    public void hardExpression() throws LexicalException {
+        String expression = "-p2a *(-5)+(-12.3*b/C_4x)";
+        List<Lexeme> lexemes = lexer.analyzeExpression(expression);
+        List<Lexeme> expectedLexemes = new ArrayList<>();
+        expectedLexemes.add(new MinusOperatorLexeme());
+        expectedLexemes.add(new VariableLexeme("p2a"));
+        expectedLexemes.add(new MultiplyOperatorLexeme());
+        expectedLexemes.add(new LeftQuoteLexeme());
+        expectedLexemes.add(new MinusOperatorLexeme());
+        expectedLexemes.add(new ConstantLexeme("5"));
+        expectedLexemes.add(new RightQuoteLexeme());
+        expectedLexemes.add(new PlusOperatorLexeme());
+        expectedLexemes.add(new LeftQuoteLexeme());
+        expectedLexemes.add(new MinusOperatorLexeme());
+        expectedLexemes.add(new ConstantLexeme("12.3"));
+        expectedLexemes.add(new MultiplyOperatorLexeme());
+        expectedLexemes.add(new VariableLexeme("b"));
+        expectedLexemes.add(new DivideOperatorLexeme());
+        expectedLexemes.add(new VariableLexeme("C_4x"));
+        expectedLexemes.add(new RightQuoteLexeme());
+        assertEquals(lexemes.size(), expectedLexemes.size());
+        assertTrue(compareLexemes(lexemes, expectedLexemes));
+    }
+
     private boolean compareLexemes(List<Lexeme> actual, List<Lexeme> expected) {
         for (int i = 0; i < expected.size(); i++) {
             Lexeme expectedLexeme = expected.get(i);
@@ -110,8 +149,8 @@ public class LexerTest {
             }
             if (expectedLexeme instanceof HasValue) {
                 HasValue expectedLexemeWithValue = (HasValue) expectedLexeme;
-                HasValue actualLexmemeWithValue = (HasValue) actualLexeme;
-                if (!expectedLexemeWithValue.getValue().equals(actualLexmemeWithValue.getValue())) {
+                HasValue actualLexemeWithValue = (HasValue) actualLexeme;
+                if (!expectedLexemeWithValue.getValue().equals(actualLexemeWithValue.getValue())) {
                     return false;
                 }
             }
