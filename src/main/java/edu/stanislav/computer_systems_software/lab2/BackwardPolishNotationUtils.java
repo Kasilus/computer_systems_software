@@ -1,6 +1,7 @@
 package edu.stanislav.computer_systems_software.lab2;
 
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.Lexeme;
+import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.UnaryMinusLexeme;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.arithmetic.*;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.math.CosMathFunctionLexeme;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.math.MathFunctionLexeme;
@@ -14,15 +15,9 @@ import java.util.*;
 
 public class BackwardPolishNotationUtils {
 
-    public static List<Lexeme> calculateBPN(List<Lexeme> lexemes) {
-        if (lexemes == null || lexemes.isEmpty()) {
-            return Collections.emptyList();
-        }
-        lexemes.add(new RightQuoteLexeme());
-        List<Lexeme> outLexemes = new ArrayList<>();
-        Stack<Lexeme> operatorsStack = new Stack<>();
-        operatorsStack.push(new LeftQuoteLexeme());
-        Map<Class, Integer> operationPriorities = new HashMap<>();
+    private static Map<Class, Integer> operationPriorities = new HashMap<>();
+
+    static {
         operationPriorities.put(PlusOperatorLexeme.class, 1);
         operationPriorities.put(MinusOperatorLexeme.class, 1);
         operationPriorities.put(MultiplyOperatorLexeme.class, 2);
@@ -30,6 +25,18 @@ public class BackwardPolishNotationUtils {
         operationPriorities.put(SinMathFunctionLexeme.class, 3);
         operationPriorities.put(CosMathFunctionLexeme.class, 3);
         operationPriorities.put(TgMathFunctionLexeme.class, 3);
+        operationPriorities.put(UnaryMinusLexeme.class, 3);
+    }
+
+    public static List<Lexeme> calculateBPN(List<Lexeme> inLexemes) {
+        if (inLexemes == null || inLexemes.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Lexeme> lexemes = replaceUnaryMinuses(inLexemes);
+        lexemes.add(new RightQuoteLexeme());
+        List<Lexeme> outLexemes = new ArrayList<>();
+        Stack<Lexeme> operatorsStack = new Stack<>();
+        operatorsStack.push(new LeftQuoteLexeme());
         for (Lexeme lexeme: lexemes) {
             System.out.println("Current lexeme = " + lexeme);
             System.out.println("outLexemes = " + outLexemes);
@@ -39,19 +46,20 @@ public class BackwardPolishNotationUtils {
                 outLexemes.add(lexeme);
                 continue;
             }
-            if (lexeme instanceof ArithmeticOperatorLexeme || lexeme instanceof MathFunctionLexeme) {
+            if (lexeme instanceof ArithmeticOperatorLexeme || lexeme instanceof MathFunctionLexeme || lexeme instanceof UnaryMinusLexeme) {
                 Lexeme previousLexeme = null;
                 if (!operatorsStack.isEmpty()) {
                     previousLexeme = operatorsStack.pop();
                 }
-                if ((previousLexeme instanceof ArithmeticOperatorLexeme || previousLexeme instanceof MathFunctionLexeme) && !operationPriorities.get(previousLexeme.getClass()).equals(operationPriorities.get(lexeme.getClass()))) {
+                if ((previousLexeme instanceof ArithmeticOperatorLexeme || previousLexeme instanceof MathFunctionLexeme || previousLexeme instanceof UnaryMinusLexeme)
+                        && !operationPriorities.get(previousLexeme.getClass()).equals(operationPriorities.get(lexeme.getClass()))) {
                     while (operationPriorities.get(previousLexeme.getClass()) >= operationPriorities.get(lexeme.getClass())){
                         outLexemes.add(previousLexeme);
                         if (operatorsStack.isEmpty()) {
                             break;
                         }
                         previousLexeme = operatorsStack.pop();
-                        if (!(previousLexeme instanceof ArithmeticOperatorLexeme) && !(previousLexeme instanceof MathFunctionLexeme)) {
+                        if (!(previousLexeme instanceof ArithmeticOperatorLexeme) && !(previousLexeme instanceof MathFunctionLexeme) && !(previousLexeme instanceof UnaryMinusLexeme)) {
                             break;
                         }
                     }
@@ -79,6 +87,26 @@ public class BackwardPolishNotationUtils {
         return outLexemes;
     }
 
+    private static List<Lexeme> replaceUnaryMinuses(List<Lexeme> lexemes) {
+        List<Lexeme> lexemesWithReplacedUnaryMinuses = new ArrayList<>(lexemes);
+        if (lexemes.get(0) instanceof MinusOperatorLexeme) {
+            lexemesWithReplacedUnaryMinuses.set(0, new UnaryMinusLexeme());
+        }
+        // change unary minuses (except first [already] and last [not needed])
+        for (int i = 1; i < lexemes.size() - 1; i++) {
+            Lexeme curLexeme = lexemes.get(i);
+            if(!(curLexeme instanceof MinusOperatorLexeme)) {
+                continue;
+            }
+            Lexeme prevLexeme = lexemes.get(i - 1);
+            Lexeme nextLexeme = lexemes.get(i + 1);
+            if (nextLexeme instanceof HasValue && (!(prevLexeme instanceof HasValue)) && !(prevLexeme instanceof RightQuoteLexeme)) {
+                lexemesWithReplacedUnaryMinuses.set(i, new UnaryMinusLexeme());
+            }
+        }
+        return lexemesWithReplacedUnaryMinuses;
+    }
+
     public static Node buildExpressionTree(List<Lexeme> lexemesInBPN) {
         Stack<Node> expressionTreeStack = new Stack<>();
         Node operatorNode;
@@ -89,7 +117,7 @@ public class BackwardPolishNotationUtils {
             }
             operatorNode = new Node(lexeme);
             operatorNode.setRightChild(expressionTreeStack.pop());
-            if (!(operatorNode.currentLexeme instanceof MathFunctionLexeme)) {
+            if (!(operatorNode.currentLexeme instanceof MathFunctionLexeme) && !(operatorNode.currentLexeme instanceof UnaryMinusLexeme)) {
                 operatorNode.setLeftChild(expressionTreeStack.pop());
             }
             expressionTreeStack.push(operatorNode);

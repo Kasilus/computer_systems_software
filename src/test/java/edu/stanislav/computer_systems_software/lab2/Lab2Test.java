@@ -9,7 +9,6 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class Lab2Test {
 
@@ -39,6 +38,13 @@ public class Lab2Test {
         String input = "(A + 8 * sin(B * 15)) / (C + tg(D))";
         String BPNString = getBPNString(input);
         assertEquals("A8B15*sin*+CDtg+/", BPNString);
+    }
+
+    @Test
+    public void testBPN_arithmetic_with_unary_simple() {
+        String input = "-3 + A * (-D)";
+        String BPNString = getBPNString(input);
+        assertEquals("3~AD~*+", BPNString);
     }
 
     private String getBPNString(String input) {

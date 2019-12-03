@@ -8,19 +8,12 @@ import java.util.*;
 public class Lab2 {
     public static void main(String[] args) {
 
-        String expression = "(A + 8 * sin(B * 15)) / (C + tg(D))";
+        String expression = "-3 + A * (-D)";
         ExpressionAnalyzer analyzer = new ExpressionAnalyzer();
         analyzer.analyzeExpression(expression);
-//        analyzer.printLexemes();
+        analyzer.printResults();
         List<Lexeme> lexemes = analyzer.getLexemes();
-        // change sequences on that, which could be paralleled
-
-        // backward polish notation
         List<Lexeme> outLexemes = BackwardPolishNotationUtils.calculateBPN(lexemes);
-
-        // backward polish notation with sin, cos, unary '-'
-
-        // build expression tree
         Node expressionTree = BackwardPolishNotationUtils.buildExpressionTree(outLexemes);
         System.out.println(expressionTree);
     }
