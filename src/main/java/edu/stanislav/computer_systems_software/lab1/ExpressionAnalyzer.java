@@ -1,5 +1,6 @@
 package edu.stanislav.computer_systems_software.lab1;
 
+import edu.stanislav.computer_systems_software.Constants;
 import edu.stanislav.computer_systems_software.lab1.lexer.Lexer;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.Lexeme;
 import edu.stanislav.computer_systems_software.lab1.parser.Parser;
@@ -9,21 +10,23 @@ import java.util.List;
 
 public class ExpressionAnalyzer {
 
-    List<Lexeme> lexemes;
-    TreeNode rootNode;
+    private List<Lexeme> lexemes;
+    private TreeNode rootNode;
+    private Boolean isAnalysisSuccessful = null;
 
     public void analyzeExpression(String expression) {
-        System.out.println("INPUT EXPRESSION\n" + expression);
-
+        System.out.println("Input expression\n" + expression);
         Lexer lexer = new Lexer();
         Parser parser = new Parser();
         try {
             lexemes = lexer.analyzeExpression(expression);
             rootNode = parser.parse(lexemes);
+            isAnalysisSuccessful = Boolean.TRUE;
         } catch (CompilerException e) {
             String indexString = generateIndexString(e.getIndex());
             System.out.println(indexString);
             System.out.println(e);
+            isAnalysisSuccessful = Boolean.FALSE;
         }
     }
 
@@ -38,21 +41,28 @@ public class ExpressionAnalyzer {
     }
 
     public void printResults() {
-        printLexemes();
-        printParseTree();
+        if (isAnalysisSuccessful) {
+            printLexemes();
+            printParseTree();
+        } else {
+            System.out.println("");
+        }
+
     }
 
     public void printLexemes() {
         if (lexemes != null) {
-            System.out.println("\nLEXEMES");
-            lexemes.forEach(System.out::println);
+            System.out.println("\nLexemes");
+            System.out.println(lexemes);
         }
     }
 
     public void printParseTree() {
         if (rootNode != null) {
-            System.out.println("\nPARSE TREE");
-            System.out.println(rootNode.getTree());
+            if (Constants.FULL_PRINT) {
+                System.out.println("\nParse tree");
+                System.out.println(rootNode.getTree());
+            }
         }
     }
 
@@ -62,5 +72,9 @@ public class ExpressionAnalyzer {
 
     public TreeNode getTree() {
         return rootNode;
+    }
+
+    public Boolean getAnalysisSuccessful() {
+        return isAnalysisSuccessful;
     }
 }

@@ -17,8 +17,9 @@ public class Lab2 {
 
 
     public static void main(String[] args) {
+        String expression = "-3 * (-15 + 12)";
         String expression6 = "A/B/C/D/E/F";
-        String expression = "A-B-C-X+D-E-F-Y";
+        String expression0 = "A-B-C-X+D-E-F-Y";
         String expression5 = "A-B-(5+12)";
         String expression7 = "A-B-C-D-E-F";
         String expression1 = "1-(2+3+4+5+6+7+8+9)";
@@ -26,52 +27,16 @@ public class Lab2 {
         ExpressionAnalyzer analyzer = new ExpressionAnalyzer();
         analyzer.analyzeExpression(expression);
         analyzer.printResults();
-        List<Lexeme> lexemes = analyzer.getLexemes();
-        // change minuses on pluses and / on *
-        Iterator<Lexeme> lexemeIterator = lexemes.iterator();
-        List<Lexeme> changedLexemes = new ArrayList<>();
-        for (int i = 0; i < lexemes.size(); i++) {
-            if (lexemes.get(i) instanceof HasValue) {
-                changedLexemes.add(lexemes.get(i));
-            }
-            // check for minus sequence
-            if (lexemes.get(i) instanceof MinusOperatorLexeme || lexemes.get(i) instanceof DivideOperatorLexeme) {
-                Class lexemeToChangeClass = lexemes.get(i).getClass();
-                // check that next is a valuable
-                if (i < lexemes.size() - 2) {
-                    if (lexemes.get(i+1) instanceof HasValue && (lexemes.get(i+2).getClass() == lexemeToChangeClass) && lexemes.get(i+3) instanceof HasValue) {
-                        // add minus or division
-                        changedLexemes.add(lexemes.get(i));
-                        // add quote
-                        changedLexemes.add(new LeftQuoteLexeme());
-                        // add first valuable
-                        changedLexemes.add(lexemes.get(i + 1));
-                        i+=2;
-                        while (i <= lexemes.size() - 2 && lexemes.get(i).getClass() == lexemeToChangeClass) {
-                            if (lexemeToChangeClass == MinusOperatorLexeme.class) {
-                                changedLexemes.add(new PlusOperatorLexeme());
-                            } else if(lexemeToChangeClass == DivideOperatorLexeme.class) {
-                                changedLexemes.add(new MultiplyOperatorLexeme());
-                            }
-                            changedLexemes.add(lexemes.get(i+1));
-                            i+=2;
-                        }
-                        changedLexemes.add(new RightQuoteLexeme());
-                    }
-                } else {
-                    changedLexemes.add(lexemes.get(i));
-                }
-            }
-
-            if (i < lexemes.size() && (lexemes.get(i) instanceof PlusOperatorLexeme || lexemes.get(i) instanceof MultiplyOperatorLexeme)) {
-                changedLexemes.add(lexemes.get(i));
-            }
+        if (!analyzer.getAnalysisSuccessful()) {
+            return;
         }
-        System.out.println(changedLexemes);
+        List<Lexeme> lexemes = analyzer.getLexemes();
         List<Lexeme> outLexemes = BackwardPolishNotationUtils.calculateBPN(lexemes);
         Node expressionTree = BackwardPolishNotationUtils.buildExpressionTree(outLexemes);
+        System.out.println("\nNot balanced expression tree");
         System.out.println(expressionTree);
         Node balancedExpressionTree = balance(expressionTree);
+        System.out.println("\nBalanced expression tree");
         System.out.println(balancedExpressionTree);
     }
 
