@@ -17,15 +17,22 @@ public class BackwardPolishNotationUtils {
 
     private static Map<Class, Integer> operationPriorities = new HashMap<>();
 
+    /*
+    precedence are :
+            * > ^ > / > % > + > - > ) > ( > any operand
+    */
+
     static {
-        operationPriorities.put(PlusOperatorLexeme.class, 1);
-        operationPriorities.put(MinusOperatorLexeme.class, 1);
-        operationPriorities.put(MultiplyOperatorLexeme.class, 2);
-        operationPriorities.put(DivideOperatorLexeme.class, 2);
-        operationPriorities.put(SinMathFunctionLexeme.class, 3);
-        operationPriorities.put(CosMathFunctionLexeme.class, 3);
-        operationPriorities.put(TgMathFunctionLexeme.class, 3);
-        operationPriorities.put(UnaryMinusLexeme.class, 3);
+        operationPriorities.put(LeftQuoteLexeme.class, 1);
+        operationPriorities.put(RightQuoteLexeme.class, 2);
+        operationPriorities.put(MinusOperatorLexeme.class, 3);
+        operationPriorities.put(PlusOperatorLexeme.class, 4);
+        operationPriorities.put(MultiplyOperatorLexeme.class, 6);
+        operationPriorities.put(DivideOperatorLexeme.class, 5);
+//        operationPriorities.put(SinMathFunctionLexeme.class, 3);
+//        operationPriorities.put(CosMathFunctionLexeme.class, 3);
+//        operationPriorities.put(TgMathFunctionLexeme.class, 3);
+//        operationPriorities.put(UnaryMinusLexeme.class, 3);
     }
 
     public static List<Lexeme> calculateBPN(List<Lexeme> inLexemes) {
@@ -46,25 +53,22 @@ public class BackwardPolishNotationUtils {
                 outLexemes.add(lexeme);
                 continue;
             }
-            if (lexeme instanceof ArithmeticOperatorLexeme || lexeme instanceof MathFunctionLexeme || lexeme instanceof UnaryMinusLexeme) {
+            if (lexeme instanceof ArithmeticOperatorLexeme) {
                 Lexeme previousLexeme = null;
                 if (!operatorsStack.isEmpty()) {
-                    previousLexeme = operatorsStack.pop();
+                    previousLexeme = operatorsStack.peek();
                 }
-                if ((previousLexeme instanceof ArithmeticOperatorLexeme || previousLexeme instanceof MathFunctionLexeme || previousLexeme instanceof UnaryMinusLexeme)
-                        && !operationPriorities.get(previousLexeme.getClass()).equals(operationPriorities.get(lexeme.getClass()))) {
-                    while (operationPriorities.get(previousLexeme.getClass()) >= operationPriorities.get(lexeme.getClass())){
+                if (previousLexeme != null &&
+                        operationPriorities.get(previousLexeme.getClass()) > operationPriorities.get(lexeme.getClass())) {
+                    while (!(previousLexeme instanceof LeftQuoteLexeme)) {
+                        previousLexeme = operatorsStack.pop();
                         outLexemes.add(previousLexeme);
                         if (operatorsStack.isEmpty()) {
                             break;
                         }
-                        previousLexeme = operatorsStack.pop();
-                        if (!(previousLexeme instanceof ArithmeticOperatorLexeme) && !(previousLexeme instanceof MathFunctionLexeme) && !(previousLexeme instanceof UnaryMinusLexeme)) {
-                            break;
-                        }
+                        previousLexeme = operatorsStack.peek();
                     }
                 }
-                operatorsStack.push(previousLexeme);
                 operatorsStack.push(lexeme);
                 continue;
             }

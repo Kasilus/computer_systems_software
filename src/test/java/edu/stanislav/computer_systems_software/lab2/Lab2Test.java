@@ -33,18 +33,25 @@ public class Lab2Test {
         assertEquals("AB+CD/-GKL/MN++*+", BPNString);
     }
 
-    @Test
-    public void testBPN_arithmetic_with_math_funcs_hard() {
-        String input = "(A + 8 * sin(B * 15)) / (C + tg(D))";
-        String BPNString = getBPNString(input);
-        assertEquals("A8B15*sin*+CDtg+/", BPNString);
-    }
+//    @Test
+//    public void testBPN_arithmetic_with_math_funcs_hard() {
+//        String input = "(A + 8 * sin(B * 15)) / (C + tg(D))";
+//        String BPNString = getBPNString(input);
+//        assertEquals("A8B15*sin*+CDtg+/", BPNString);
+//    }
+
+//    @Test
+//    public void testBPN_arithmetic_with_unary_simple() {
+//        String input = "-3 + A * (-D)";
+//        String BPNString = getBPNString(input);
+//        assertEquals("3~AD~*+", BPNString);
+//    }
 
     @Test
-    public void testBPN_arithmetic_with_unary_simple() {
-        String input = "-3 + A * (-D)";
+    public void testBPN_arithmetic_many_pluses_with_one_minus() {
+        String input = "1+2-3+4+5+6+7";
         String BPNString = getBPNString(input);
-        assertEquals("3~AD~*+", BPNString);
+        assertEquals("12+34567++++-", BPNString);
     }
 
     private String getBPNString(String input) {
