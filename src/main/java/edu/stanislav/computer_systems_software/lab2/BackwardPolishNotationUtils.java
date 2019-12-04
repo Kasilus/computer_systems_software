@@ -19,7 +19,7 @@ public class BackwardPolishNotationUtils {
 
     /*
     precedence are :
-            * > ^ > / > % > + > - > ) > ( > any operand
+            * > / > + > - > ) > ( > any operand
     */
 
     static {
@@ -27,12 +27,12 @@ public class BackwardPolishNotationUtils {
         operationPriorities.put(RightQuoteLexeme.class, 2);
         operationPriorities.put(MinusOperatorLexeme.class, 3);
         operationPriorities.put(PlusOperatorLexeme.class, 4);
-        operationPriorities.put(MultiplyOperatorLexeme.class, 6);
         operationPriorities.put(DivideOperatorLexeme.class, 5);
-//        operationPriorities.put(SinMathFunctionLexeme.class, 3);
-//        operationPriorities.put(CosMathFunctionLexeme.class, 3);
-//        operationPriorities.put(TgMathFunctionLexeme.class, 3);
-//        operationPriorities.put(UnaryMinusLexeme.class, 3);
+        operationPriorities.put(MultiplyOperatorLexeme.class, 6);
+        operationPriorities.put(SinMathFunctionLexeme.class, 7);
+        operationPriorities.put(CosMathFunctionLexeme.class, 7);
+        operationPriorities.put(TgMathFunctionLexeme.class, 7);
+        operationPriorities.put(UnaryMinusLexeme.class, 7);
     }
 
     public static List<Lexeme> calculateBPN(List<Lexeme> inLexemes) {

@@ -14,10 +14,14 @@ public class Node {
 
     public Node(Lexeme currentLexeme) {
         this.currentLexeme = currentLexeme;
-        if (currentLexeme instanceof PlusOperatorLexeme || currentLexeme instanceof MinusOperatorLexeme) {
-            this.value = 1;
-        } else if (currentLexeme instanceof MultiplyOperatorLexeme || currentLexeme instanceof DivideOperatorLexeme) {
+        if (currentLexeme instanceof PlusOperatorLexeme) {
             this.value = 2;
+        } else if (currentLexeme instanceof MinusOperatorLexeme) {
+            this.value = 1;
+        } else if (currentLexeme instanceof MultiplyOperatorLexeme) {
+            this.value = 4;
+        } else if (currentLexeme instanceof DivideOperatorLexeme) {
+            this.value = 3;
         } else {
             // ?
             this.value = 0;
