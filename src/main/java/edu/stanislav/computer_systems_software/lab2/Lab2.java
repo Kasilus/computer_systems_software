@@ -17,9 +17,9 @@ public class Lab2 {
 
 
     public static void main(String[] args) {
-        String expression = "-3 * (-15 + 12)";
+        String expression9 = "-3 * (-15 + 12)";
         String expression6 = "A/B/C/D/E/F";
-        String expression0 = "A-B-C-X+D-E-F-Y";
+        String expression = "-A-B-C-X+D-E-F-Y";
         String expression5 = "A-B-(5+12)";
         String expression7 = "A-B-C-D-E-F";
         String expression1 = "1-(2+3+4+5+6+7+8+9)";

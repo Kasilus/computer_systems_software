@@ -21,7 +21,7 @@ public class BackwardPolishNotationUtils {
 
     /*
     precedence are :
-            * > / > + > - > ) > ( > any operand
+            tg = cos = sin > * > / > + > - > ) > ( > any operand
     */
 
     static {
@@ -116,8 +116,10 @@ public class BackwardPolishNotationUtils {
             Lexeme nextLexeme = lexemes.get(i + 1);
             if (nextLexeme instanceof HasValue && (!(prevLexeme instanceof HasValue)) && !(prevLexeme instanceof RightQuoteLexeme)) {
                 addUnaryMinusReplace(lexemesWithReplacedUnaryMinuses, (HasValue) nextLexeme);
+                i++;
+            } else {
+                lexemesWithReplacedUnaryMinuses.add(curLexeme);
             }
-            i++;
         }
         lexemesWithReplacedUnaryMinuses.add(lexemes.get(lexemes.size() - 1));
         return lexemesWithReplacedUnaryMinuses;
@@ -153,6 +155,7 @@ public class BackwardPolishNotationUtils {
                         i+=2;
                     }
                     changedLexemes.add(new RightQuoteLexeme());
+                    i--;
                 } else {
                     changedLexemes.add(lexemes.get(i));
                 }
