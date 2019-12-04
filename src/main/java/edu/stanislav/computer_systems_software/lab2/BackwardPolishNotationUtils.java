@@ -106,7 +106,6 @@ public class BackwardPolishNotationUtils {
             addUnaryMinusReplace(lexemesWithReplacedUnaryMinuses, (HasValue) lexemes.get(1));
             counter+=2;
         }
-        // change unary minuses (except first [already] and last [not needed])
         for (int i = counter; i < lexemes.size() - 1; i++) {
             Lexeme curLexeme = lexemes.get(i);
             if(!(curLexeme instanceof MinusOperatorLexeme)) {
@@ -120,6 +119,7 @@ public class BackwardPolishNotationUtils {
             }
             i++;
         }
+        lexemesWithReplacedUnaryMinuses.add(lexemes.get(lexemes.size() - 1));
         return lexemesWithReplacedUnaryMinuses;
     }
 
