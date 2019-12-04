@@ -61,7 +61,7 @@ public class BackwardPolishNotationUtils {
                 outLexemes.add(lexeme);
                 continue;
             }
-            if (lexeme instanceof ArithmeticOperatorLexeme) {
+            if (lexeme instanceof ArithmeticOperatorLexeme || lexeme instanceof MathFunctionLexeme) {
                 Lexeme previousLexeme = null;
                 if (!operatorsStack.isEmpty()) {
                     previousLexeme = operatorsStack.peek();

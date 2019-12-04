@@ -17,9 +17,10 @@ public class Lab2 {
 
 
     public static void main(String[] args) {
+        String expression = "B * C * D * E * F * cos (90) * H * X * Y * Z + sin (B * C * D * E * F * G * H * X * Y * Z)";
         String expression9 = "-3 * (-15 + 12)";
         String expression6 = "A/B/C/D/E/F";
-        String expression = "-A-B-C-X+D-E-F-Y";
+        String expression2 = "-A-B-C-X+D-E-F-Y*(-6+15*3*B*C*D*A*6*12*3*100/Z)";
         String expression5 = "A-B-(5+12)";
         String expression7 = "A-B-C-D-E-F";
         String expression1 = "1-(2+3+4+5+6+7+8+9)";
@@ -47,17 +48,21 @@ public class Lab2 {
                 // WA when branches are equivalent
                 break;
             }
-            if (root.leftChild.maxLength() - root.rightChild.maxLength() > 1) {
-                if (root.value.equals(root.leftChild.value)) {
-                    root = root.turnRight();
-                    result++;
-                } else {
-                    break;
-                }
-            } else if (root.rightChild.maxLength() - root.leftChild.maxLength() > 1) {
-                if (root.value.equals(root.rightChild.value)) {
-                    root = root.turnLeft();
-                    result++;
+            if (root.leftChild != null) {
+                if (root.leftChild.maxLength() - root.rightChild.maxLength() > 1) {
+                    if (root.value.equals(root.leftChild.value)) {
+                        root = root.turnRight();
+                        result++;
+                    } else {
+                        break;
+                    }
+                } else if (root.rightChild.maxLength() - root.leftChild.maxLength() > 1) {
+                    if (root.value.equals(root.rightChild.value)) {
+                        root = root.turnLeft();
+                        result++;
+                    } else {
+                        break;
+                    }
                 } else {
                     break;
                 }
@@ -66,8 +71,10 @@ public class Lab2 {
             }
         }
 
-        if (root.leftChild.leftChild != null) {
-            root.leftChild = balance(root.leftChild);
+        if (root.leftChild != null) {
+            if (root.leftChild.leftChild != null) {
+                root.leftChild = balance(root.leftChild);
+            }
         }
         if (root.rightChild.rightChild != null || root.rightChild.leftChild != null) {
             root.rightChild = balance(root.rightChild);
