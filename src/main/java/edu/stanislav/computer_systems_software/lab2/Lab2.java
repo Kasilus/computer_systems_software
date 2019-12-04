@@ -6,9 +6,12 @@ import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.Lexeme;
 import java.util.*;
 
 public class Lab2 {
+
+
+
     public static void main(String[] args) {
 
-        String expression = "1+2-3+4+5+6+7";
+        String expression = "1-2+3+4+5+6";
         ExpressionAnalyzer analyzer = new ExpressionAnalyzer();
         analyzer.analyzeExpression(expression);
         analyzer.printResults();
@@ -26,13 +29,13 @@ public class Lab2 {
     public static Node balance(Node root) {
         while (true) {
             if (root.leftChild.maxLength() - root.rightChild.maxLength() > 1) {
-                if (root.currentLexeme.getClass() == root.leftChild.currentLexeme.getClass()) {
+                if (root.value.equals(root.leftChild.value)) {
                     root = root.turnRight();
                 } else {
                     break;
                 }
             } else if (root.rightChild.maxLength() - root.leftChild.maxLength() > 1) {
-                if (root.currentLexeme.getClass() == root.rightChild.currentLexeme.getClass()) {
+                if (root.value.equals(root.rightChild.value)) {
                     root = root.turnLeft();
                 } else {
                     break;

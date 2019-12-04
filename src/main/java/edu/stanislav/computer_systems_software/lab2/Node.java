@@ -1,14 +1,27 @@
 package edu.stanislav.computer_systems_software.lab2;
 
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.Lexeme;
+import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.arithmetic.DivideOperatorLexeme;
+import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.arithmetic.MinusOperatorLexeme;
+import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.arithmetic.MultiplyOperatorLexeme;
+import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.arithmetic.PlusOperatorLexeme;
 
 public class Node {
     Lexeme currentLexeme;
     Node leftChild;
     Node rightChild;
+    Integer value;
 
     public Node(Lexeme currentLexeme) {
         this.currentLexeme = currentLexeme;
+        if (currentLexeme instanceof PlusOperatorLexeme || currentLexeme instanceof MinusOperatorLexeme) {
+            this.value = 1;
+        } else if (currentLexeme instanceof MultiplyOperatorLexeme || currentLexeme instanceof DivideOperatorLexeme) {
+            this.value = 2;
+        } else {
+            // ?
+            this.value = 0;
+        }
     }
 
     public void setLeftChild(Node leftChild) {

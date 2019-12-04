@@ -54,6 +54,14 @@ public class Lab2Test {
         assertEquals("12+34567++++-", BPNString);
     }
 
+    @Test
+    public void testBPN_arithmetic_many_pluses_with_one_minus_2() {
+        String input = "1-2+3+4+5+6";
+        String BPNString = getBPNString(input);
+        assertEquals("123456++++-", BPNString);
+    }
+
+
     private String getBPNString(String input) {
         expressionAnalyzer.analyzeExpression(input);
         List<Lexeme> lexemes = expressionAnalyzer.getLexemes();
