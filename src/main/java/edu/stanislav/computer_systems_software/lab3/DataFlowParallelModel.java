@@ -10,16 +10,25 @@ public class DataFlowParallelModel implements ParallelModel {
 
     private int processors;
     private Map<String, Integer> operationDurability;
+    private int memoryBanks;
+    private int totalTacts;
 
-    private StringBuilder modelOutput;
+    private Map<Integer, List<String>> processorsHistory = new HashMap<>();
+    private Map<Integer, List<String>> memoryBanksHistory = new HashMap<>();
     private int lengthOfOutputForEachProcessor = 20;
     // we can run only 1 RunningTask on Processor at every period of time
     private Map<Integer, RunningTask> currentTasks = new HashMap<>();
 
-    public DataFlowParallelModel(int processors, Map<String, Integer> operationDurability) {
+    public DataFlowParallelModel(int processors, Map<String, Integer> operationDurability, int memoryBanks) {
         this.processors = processors;
+        for (int i = 1; i <= processors; i++) {
+            processorsHistory.put(i, new ArrayList<>(Arrays.asList(new String[1000])));
+        }
         this.operationDurability = operationDurability;
-        initModelOutput();
+        this.memoryBanks = memoryBanks;
+        for (int i = 1; i <= memoryBanks; i++) {
+            memoryBanksHistory.put(i, new ArrayList<>(Arrays.asList(new String[1000])));
+        }
     }
 
     @Override
@@ -28,49 +37,70 @@ public class DataFlowParallelModel implements ParallelModel {
             return;
         }
         DataFlowNode dataFlowNode = (DataFlowNode) graphNode;
-        // init queues
-//        System.out.println("Init queues");
         initTasksToQueues(dataFlowNode);
-//        printQueues();
-//        System.out.println("\n" + modelOutput);
 
-        while ((!readyTasks.isEmpty() || !otherTasks.isEmpty())) {
-            // at first try sequential algorithm
+        int currentTact = 0;
+        while (!readyTasks.isEmpty() || !otherTasks.isEmpty() || isProcessingTask()) {
             int emptyProcessor;
-            while ((emptyProcessor = getEmptyProcessor()) != 0 && !readyTasks.isEmpty()) {
-//                TODO: replace with this to immerse task consecutively
-//                DataFlowNode readyTask = readyTasks.iterator().next();
-//                TODO: replace with this to immerse task according to node weight
+            while ((emptyProcessor = getEmptyProcessor(currentTact)) != 0 && !readyTasks.isEmpty()) {
                 DataFlowNode readyTask = getTaskWithMaxWeight(readyTasks);
-                currentTasks.put(emptyProcessor, new RunningTask(readyTask, operationDurability.get(readyTask.getValue())));
+                int tactToRead = currentTact;
+                List<String> emptyProcessorHistory = processorsHistory.get(emptyProcessor);
+                int emptyMemoryBank;
+                while ((emptyMemoryBank = getEmptyMemoryBank(tactToRead)) == 0) {
+                    emptyProcessorHistory.remove(tactToRead);
+                    emptyProcessorHistory.add(tactToRead, getOutputRowPartForProcessor(""));
+                    tactToRead++;
+                }
+                List<String> emptyMemoryBankHistory = memoryBanksHistory.get(emptyMemoryBank);
+                emptyProcessorHistory.remove(tactToRead);
+                emptyProcessorHistory.add(tactToRead, getOutputRowPartForProcessor("R [" + readyTask.toString() + "]"));
+                emptyMemoryBankHistory.remove(tactToRead);
+                emptyMemoryBankHistory.add(tactToRead, getOutputRowPartForProcessor("R [" + readyTask.toString() + "]"));
+                for (int i = 0; i < operationDurability.get(readyTask.getValue()); i++) {
+                    emptyProcessorHistory.add(tactToRead + (i + 1), getOutputRowPartForProcessor(readyTask.toString()));
+                }
+                int tactToWrite = tactToRead + operationDurability.get(readyTask.getValue()) + 1;
+                while (getEmptyMemoryBank(tactToWrite) == 0) {
+                    emptyProcessorHistory.remove(tactToWrite);
+                    emptyProcessorHistory.add(tactToWrite, getOutputRowPartForProcessor(""));
+                    tactToWrite++;
+                }
+                emptyProcessorHistory.remove(tactToWrite);
+                emptyProcessorHistory.add(tactToWrite, getOutputRowPartForProcessor("W [" + readyTask.toString() + "]"));
+                emptyMemoryBankHistory.remove(tactToWrite);
+                emptyMemoryBankHistory.add(tactToWrite, getOutputRowPartForProcessor("W [" + readyTask.toString() + "]"));
+                currentTasks.put(emptyProcessor, new RunningTask(readyTask));
                 readyTasks.remove(readyTask);
             }
 
-            // do a tact
-            modelOutput.append("\n");
-            modelOutput.append("|");
+            // apply tasks to finished, if write is happened
             for (int i = 1; i <= processors; i++) {
-                RunningTask currentTask = currentTasks.get(i);
-                if (currentTask != null) {
-                    currentTask.completeTact();
-                    modelOutput.append(getOutputRowPartForProcessor(currentTask.toString()));
-                    if (currentTask.getTactsLast() == 0) {
-                        finishedTasks.add(currentTask.getTask());
-                        currentTasks.put(i, null);
-                    }
-                } else {
-                    modelOutput.append(getOutputRowPartForProcessor(""));
+                String currentTactRow = processorsHistory.get(i).get(currentTact);
+                if (currentTactRow != null && currentTactRow.contains("W [")) {
+                    finishedTasks.add(currentTasks.get(i).getTask());
+                    currentTasks.put(i, null);
                 }
-                modelOutput.append("|");
             }
 
             // move other tasks to ready queues
             checkReadyTasks(dataFlowNode);
-
-//            System.out.println(modelOutput);
-//            printQueues();
+            currentTact++;
         }
+
+        totalTacts = currentTact;
+
     }
+
+    private boolean isProcessingTask() {
+        for (RunningTask currentTask: currentTasks.values()) {
+            if (currentTask != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     private DataFlowNode getTaskWithMaxWeight(Set<DataFlowNode> readyTasks) {
         int maxWeight = 0;
@@ -86,12 +116,75 @@ public class DataFlowParallelModel implements ParallelModel {
 
     @Override
     public void printModel() {
+        StringBuilder modelOutput = new StringBuilder();
+        modelOutput.append("|");
+        for (int i = 0; i < processors; i++) {
+            modelOutput.append(getOutputRowPartForProcessor("P" + (i + 1)));
+            modelOutput.append("|");
+        }
+        modelOutput.append(getOutputRowPartForProcessor(""));
+        modelOutput.append("|");
+        for (int i = 0; i < memoryBanks; i++) {
+            modelOutput.append(getOutputRowPartForProcessor("MB" + (i + 1)));
+            modelOutput.append("|");
+        }
+        modelOutput.append("\n");
+        for (int i = 0; i < processors * lengthOfOutputForEachProcessor + (processors + 1); i++) {
+            modelOutput.append("=");
+        }
+        modelOutput.append(getOutputRowPartForProcessor(""));
+        for (int i = 0; i < memoryBanks * lengthOfOutputForEachProcessor + (memoryBanks + 1); i++) {
+            modelOutput.append("=");
+        }
+        modelOutput.append("\n");
+
+        for (int i = 0; i < totalTacts; i++) {
+            modelOutput.append("|");
+            for (int j = 1; j <= processors; j++) {
+                String currentProcessorHistoryRaw = processorsHistory.get(j).get(i);
+                if (currentProcessorHistoryRaw == null) {
+                    modelOutput.append(getOutputRowPartForProcessor(""));
+                } else {
+                    modelOutput.append(currentProcessorHistoryRaw);
+                }
+                modelOutput.append("|");
+            }
+            modelOutput.append(getOutputRowPartForProcessor(""));
+            modelOutput.append("|");
+            for (int j = 1; j <= memoryBanks; j++) {
+                String currentMemoryBankHistoryRaw = memoryBanksHistory.get(j).get(i);
+                if (currentMemoryBankHistoryRaw == null) {
+                    modelOutput.append(getOutputRowPartForProcessor(""));
+                } else {
+                    modelOutput.append(currentMemoryBankHistoryRaw);
+                }
+                modelOutput.append("|");
+            }
+            modelOutput.append("\n");
+        }
+
+        for (int i = 0; i < processors * lengthOfOutputForEachProcessor + (processors + 1); i++) {
+            modelOutput.append("=");
+        }
+        modelOutput.append(getOutputRowPartForProcessor(""));
+        for (int i = 0; i < memoryBanks * lengthOfOutputForEachProcessor + (memoryBanks + 1); i++) {
+            modelOutput.append("=");
+        }
         System.out.println(modelOutput);
     }
 
-    private int getEmptyProcessor() {
+    private int getEmptyProcessor(int currentTact) {
         for (int i = 1; i <= processors; i++) {
-            if (currentTasks.get((i)) == null) {
+            if (processorsHistory.get(i).get(currentTact) == null) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    private int getEmptyMemoryBank(int currentTact) {
+        for (int i = 1; i <= memoryBanks; i++) {
+            if (memoryBanksHistory.get(i).get(currentTact) == null) {
                 return i;
             }
         }
@@ -145,20 +238,10 @@ public class DataFlowParallelModel implements ParallelModel {
     }
 
     private void initModelOutput() {
-        modelOutput = new StringBuilder();
-        modelOutput.append("|");
-        for (int i = 0; i < processors; i++) {
-            modelOutput.append(getOutputRowPartForProcessor("P" + (i + 1)));
-            modelOutput.append("|");
-        }
-        modelOutput.append("\n");
-        for (int i = 0; i < processors * lengthOfOutputForEachProcessor + (processors + 1); i++) {
-            modelOutput.append("=");
-        }
-        modelOutput.append("\n");
+
     }
 
-    private StringBuilder getOutputRowPartForProcessor(String input) {
+    private String getOutputRowPartForProcessor(String input) {
         int inputLength = input.length();
         int startIndex = (lengthOfOutputForEachProcessor - inputLength) / 2;
         StringBuilder output = new StringBuilder();
@@ -169,28 +252,18 @@ public class DataFlowParallelModel implements ParallelModel {
         for (int i = output.length(); i < lengthOfOutputForEachProcessor; i++) {
             output.append(" ");
         }
-        return output;
+        return output.toString();
     }
 
     private class RunningTask {
         private DataFlowNode task;
-        private int tactsLast;
 
-        public RunningTask(DataFlowNode task, int tactsLast) {
+        public RunningTask(DataFlowNode task) {
             this.task = task;
-            this.tactsLast = tactsLast;
         }
 
         public DataFlowNode getTask() {
             return task;
-        }
-
-        public int getTactsLast() {
-            return tactsLast;
-        }
-
-        public void completeTact() {
-            tactsLast--;
         }
 
         @Override

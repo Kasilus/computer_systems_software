@@ -8,6 +8,7 @@ import java.util.*;
 public class Lab3 {
 
     public static int processors = 4;
+    public static int memoryBanks = 4;
     public static Map<String, Integer> operationDurability;
 
     public static void main(String[] args) {
@@ -26,12 +27,11 @@ public class Lab3 {
         System.out.println("Balanced expression tree");
         System.out.println(balancedExpressionTree);
 
-        // turn Node from lab2 to lab3 DataFlowNode
         DataFlowNode dataFlowTree = new DataFlowNode(balancedExpressionTree, 0);
         System.out.println("Data Flow tree");
         System.out.println(dataFlowTree.getPrintTree());
 
-        ParallelModel dataFlowParallelModel = new DataFlowParallelModel(processors, operationDurability);
+        ParallelModel dataFlowParallelModel = new DataFlowParallelModel(processors, operationDurability, memoryBanks);
         dataFlowParallelModel.run(dataFlowTree);
         dataFlowParallelModel.printModel();
     }
