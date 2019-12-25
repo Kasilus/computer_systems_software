@@ -2,7 +2,6 @@ package edu.stanislav.computer_systems_software.lab2;
 
 import edu.stanislav.computer_systems_software.Constants;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.Lexeme;
-import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.UnaryMinusLexeme;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.arithmetic.*;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.math.CosMathFunctionLexeme;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.math.MathFunctionLexeme;
@@ -41,11 +40,15 @@ public class BackwardPolishNotationUtils {
             return Collections.emptyList();
         }
         List<Lexeme> lexemes = replaceUnaryMinuses(inLexemes);
-        System.out.println("\nLexemes after unary minuses replace");
-        System.out.println(lexemes);
+        if (Constants.FULL_PRINT) {
+            System.out.println("\nLexemes after unary minuses replace");
+            System.out.println(lexemes);
+        }
         lexemes = replaceRepeatedMinusesAndDivisions(lexemes);
-        System.out.println("\nLexemes after repeated minuses and divisions replace");
-        System.out.println(lexemes);
+        if (Constants.FULL_PRINT) {
+            System.out.println("\nLexemes after repeated minuses and divisions replace");
+            System.out.println(lexemes);
+        }
         lexemes.add(new RightQuoteLexeme());
         List<Lexeme> outLexemes = new ArrayList<>();
         Stack<Lexeme> operatorsStack = new Stack<>();
@@ -92,10 +95,10 @@ public class BackwardPolishNotationUtils {
                 }
             }
         }
-
-        System.out.println("\nLexemes after Backward Polish Notation (BPN)");
-        System.out.println(outLexemes);
-
+        if (Constants.FULL_PRINT) {
+            System.out.println("\nLexemes after Backward Polish Notation (BPN)");
+            System.out.println(outLexemes);
+        }
         return outLexemes;
     }
 

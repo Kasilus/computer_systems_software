@@ -1,5 +1,6 @@
 package edu.stanislav.computer_systems_software.lab2;
 
+import edu.stanislav.computer_systems_software.Constants;
 import edu.stanislav.computer_systems_software.lab1.ExpressionAnalyzer;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.Lexeme;
 import edu.stanislav.computer_systems_software.lab1.lexer.lexemes.arithmetic.DivideOperatorLexeme;
@@ -14,72 +15,30 @@ import java.util.*;
 
 public class Lab2 {
 
-
-
     public static void main(String[] args) {
-        String expression = "B * C * D * E * F * cos (90) * H * X * Y * Z + sin (B * C * D * E * F * G * H * X * Y * Z)";
-        String expression9 = "-3 * (-15 + 12)";
-        String expression6 = "A/B/C/D/E/F";
-        String expression2 = "-A-B-C-X+D-E-F-Y*(-6+15*3*B*C*D*A*6*12*3*100/Z)";
-        String expression5 = "A-B-(5+12)";
-        String expression7 = "A-B-C-D-E-F";
-        String expression1 = "1-(2+3+4+5+6+7+8+9)";
-        String expression4 = "A/(B*C*D*E*F*Z)+1-(2+12+6+3000000)+3";
+        String expression = "-3 * (-15 + 12)";
+        buildBalancedExpressionTree(expression);
+    }
+
+    public static Node buildBalancedExpressionTree(String expression) {
         ExpressionAnalyzer analyzer = new ExpressionAnalyzer();
         analyzer.analyzeExpression(expression);
         analyzer.printResults();
         if (!analyzer.getAnalysisSuccessful()) {
-            return;
+            return null;
         }
         List<Lexeme> lexemes = analyzer.getLexemes();
         List<Lexeme> outLexemes = BackwardPolishNotationUtils.calculateBPN(lexemes);
         Node expressionTree = BackwardPolishNotationUtils.buildExpressionTree(outLexemes);
-        System.out.println("\nNot balanced expression tree");
-        System.out.println(expressionTree);
-        Node balancedExpressionTree = balance(expressionTree);
-        System.out.println("\nBalanced expression tree");
-        System.out.println(balancedExpressionTree);
-    }
-
-    public static Node balance(Node root) {
-        int result = 0;
-        while (true) {
-            if (result == 2) {
-                // WA when branches are equivalent
-                break;
-            }
-            if (root.leftChild != null) {
-                if (root.leftChild.maxLength() - root.rightChild.maxLength() > 1) {
-                    if (root.value.equals(root.leftChild.value)) {
-                        root = root.turnRight();
-                        result++;
-                    } else {
-                        break;
-                    }
-                } else if (root.rightChild.maxLength() - root.leftChild.maxLength() > 1) {
-                    if (root.value.equals(root.rightChild.value)) {
-                        root = root.turnLeft();
-                        result++;
-                    } else {
-                        break;
-                    }
-                } else {
-                    break;
-                }
-            } else {
-                break;
-            }
+        if (Constants.FULL_PRINT) {
+            System.out.println("\nNot balanced expression tree");
+            System.out.println(expressionTree);
         }
-
-        if (root.leftChild != null) {
-            if (root.leftChild.leftChild != null) {
-                root.leftChild = balance(root.leftChild);
-            }
+        Node balancedExpressionTree = TreeBalancer.balance(expressionTree);
+        if (Constants.FULL_PRINT) {
+            System.out.println("\nBalanced expression tree");
+            System.out.println(balancedExpressionTree);
         }
-        if (root.rightChild.rightChild != null || root.rightChild.leftChild != null) {
-            root.rightChild = balance(root.rightChild);
-        }
-
-        return root;
+        return balancedExpressionTree;
     }
 }

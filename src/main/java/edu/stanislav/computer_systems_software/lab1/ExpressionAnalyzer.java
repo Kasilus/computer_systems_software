@@ -52,8 +52,10 @@ public class ExpressionAnalyzer {
 
     public void printLexemes() {
         if (lexemes != null) {
-            System.out.println("\nLexemes");
-            System.out.println(lexemes);
+            if (Constants.FULL_PRINT) {
+                System.out.println("\nLexemes");
+                System.out.println(lexemes);
+            }
         }
     }
 
