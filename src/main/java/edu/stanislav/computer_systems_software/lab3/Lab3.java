@@ -31,9 +31,19 @@ public class Lab3 {
         System.out.println("Data Flow tree");
         System.out.println(dataFlowTree.getPrintTree());
 
-        ParallelModel dataFlowParallelModel = new DataFlowParallelModel(processors, operationDurability, memoryBanks);
+        // Consecutive execution on 1 processor (and 1 memory bank accordingly)
+        ParallelModel dataFlowParallelModel = new DataFlowParallelModel(1, operationDurability, 1);
+        dataFlowParallelModel.run(dataFlowTree);
+        int totalTactsFromConsecutiveExecution = ((DataFlowParallelModel) dataFlowParallelModel).getTotalTacts();
+
+        dataFlowParallelModel = new DataFlowParallelModel(processors, operationDurability, memoryBanks);
         dataFlowParallelModel.run(dataFlowTree);
         dataFlowParallelModel.printModel();
+        int totalTacts = ((DataFlowParallelModel) dataFlowParallelModel).getTotalTacts();
+        System.out.println("Total tacts: " + totalTacts);
+        double accelerationRatio = (double) totalTactsFromConsecutiveExecution / totalTacts;
+        System.out.println("Acceleration ratio: " + accelerationRatio);
+        System.out.println("Performance ratio: " + accelerationRatio / processors);
     }
 
 

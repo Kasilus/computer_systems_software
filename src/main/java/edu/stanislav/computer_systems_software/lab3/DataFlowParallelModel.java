@@ -116,8 +116,6 @@ public class DataFlowParallelModel implements ParallelModel {
 
     @Override
     public void printModel() {
-        System.out.println("Total tacts: " + totalTacts);
-        System.out.println();
         StringBuilder modelOutput = new StringBuilder();
         modelOutput.append("|");
         for (int i = 0; i < processors; i++) {
@@ -255,6 +253,10 @@ public class DataFlowParallelModel implements ParallelModel {
             output.append(" ");
         }
         return output.toString();
+    }
+
+    public int getTotalTacts() {
+        return totalTacts;
     }
 
     private class RunningTask {
