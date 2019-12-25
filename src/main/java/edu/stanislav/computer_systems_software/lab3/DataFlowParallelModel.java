@@ -11,13 +11,15 @@ public class DataFlowParallelModel implements ParallelModel {
     private int processors;
     private Map<String, Integer> operationDurability;
 
-    private StringBuilder modelOutput = new StringBuilder();
+    private StringBuilder modelOutput;
+    private int lengthOfOutputForEachProcessor = 20;
     // we can run only 1 RunningTask on Processor at every period of time
     private Map<Integer, RunningTask> currentTasks = new HashMap<>();
 
     public DataFlowParallelModel(int processors, Map<String, Integer> operationDurability) {
         this.processors = processors;
         this.operationDurability = operationDurability;
+        initModelOutput();
     }
 
     @Override
@@ -31,13 +33,7 @@ public class DataFlowParallelModel implements ParallelModel {
         moveTasksToQueues(dataFlowNode);
         printQueues();
 
-        StringBuilder processing = new StringBuilder();
-        System.out.println("|    P1    |    P2    |");
-        System.out.println("=======================");
-        System.out.println("|    a(8)  |    a(8)  |");
-        System.out.println("|    a(8)  |    a(8)  |");
-        System.out.println("|    a(8)  |    a(8)  |");
-        System.out.println("|    a(8)  |    a(8)  |");
+        System.out.println(modelOutput);
 
         while (!readyTasks.isEmpty() && !otherTasks.isEmpty()) {
             return;
@@ -69,6 +65,34 @@ public class DataFlowParallelModel implements ParallelModel {
         System.out.println(Arrays.toString(readyTasks.toArray()));
         System.out.println("Other tasks");
         System.out.println(Arrays.toString(otherTasks.toArray()));
+    }
+
+    private void initModelOutput() {
+        modelOutput = new StringBuilder();
+        modelOutput.append("|");
+        for (int i = 0; i < processors; i++) {
+            modelOutput.append(getOutputRowPartForProcessor("P" + (i + 1)));
+            modelOutput.append("|");
+        }
+        modelOutput.append("\n");
+        for (int i = 0; i < processors * lengthOfOutputForEachProcessor + (processors + 1); i++) {
+            modelOutput.append("=");
+        }
+        modelOutput.append("\n");
+    }
+
+    private StringBuilder getOutputRowPartForProcessor(String input) {
+        int inputLength = input.length();
+        int startIndex = (lengthOfOutputForEachProcessor - inputLength) / 2;
+        StringBuilder output = new StringBuilder();
+        for (int i = 0; i < startIndex; i++) {
+            output.append(" ");
+        }
+        output.append(input);
+        for (int i = output.length(); i < lengthOfOutputForEachProcessor; i++) {
+            output.append(" ");
+        }
+        return output;
     }
 
     private class RunningTask {
