@@ -13,6 +13,7 @@ public class DataFlowNode implements GraphNode {
     private DataFlowNode leftChild;
     private DataFlowNode rightChild;
     private String value;
+    private Integer weight;
     private int id;
 
 
@@ -24,6 +25,22 @@ public class DataFlowNode implements GraphNode {
             this.rightChild = new DataFlowNode(node.getRightChild());
         }
         this.value = node.getCurrentLexeme().toString();
+        this.id = ++counter;
+    }
+
+    public DataFlowNode(Node node, Integer parentWeight) {
+        this.value = node.getCurrentLexeme().toString();
+        if (Lab3.operationDurability.get(this.value) != null) {
+            this.weight = parentWeight + Lab3.operationDurability.get(this.value);
+        } else {
+            this.weight = parentWeight;
+        }
+        if (node.getLeftChild() != null) {
+            this.leftChild = new DataFlowNode(node.getLeftChild(), this.weight);
+        }
+        if (node.getRightChild() != null) {
+            this.rightChild = new DataFlowNode(node.getRightChild(), this.weight);
+        }
         this.id = ++counter;
     }
 
@@ -64,6 +81,10 @@ public class DataFlowNode implements GraphNode {
 
     public int getId() {
         return id;
+    }
+
+    public Integer getWeight() {
+        return weight;
     }
 
     @Override

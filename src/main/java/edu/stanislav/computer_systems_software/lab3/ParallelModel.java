@@ -4,4 +4,6 @@ public interface ParallelModel {
 
     void run(GraphNode node);
 
+    void printModel();
+
 }

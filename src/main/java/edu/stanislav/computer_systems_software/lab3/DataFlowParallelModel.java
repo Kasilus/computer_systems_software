@@ -29,16 +29,19 @@ public class DataFlowParallelModel implements ParallelModel {
         }
         DataFlowNode dataFlowNode = (DataFlowNode) graphNode;
         // init queues
-        System.out.println("Init queues");
+//        System.out.println("Init queues");
         initTasksToQueues(dataFlowNode);
-        printQueues();
-        System.out.println("\n" + modelOutput);
+//        printQueues();
+//        System.out.println("\n" + modelOutput);
 
         while ((!readyTasks.isEmpty() || !otherTasks.isEmpty())) {
             // at first try sequential algorithm
             int emptyProcessor;
             while ((emptyProcessor = getEmptyProcessor()) != 0 && !readyTasks.isEmpty()) {
-                DataFlowNode readyTask = readyTasks.iterator().next();
+//                TODO: replace with this to immerse task consecutively
+//                DataFlowNode readyTask = readyTasks.iterator().next();
+//                TODO: replace with this to immerse task according to node weight
+                DataFlowNode readyTask = getTaskWithMaxWeight(readyTasks);
                 currentTasks.put(emptyProcessor, new RunningTask(readyTask, operationDurability.get(readyTask.getValue())));
                 readyTasks.remove(readyTask);
             }
@@ -64,9 +67,26 @@ public class DataFlowParallelModel implements ParallelModel {
             // move other tasks to ready queues
             checkReadyTasks(dataFlowNode);
 
-            System.out.println(modelOutput);
-            printQueues();
+//            System.out.println(modelOutput);
+//            printQueues();
         }
+    }
+
+    private DataFlowNode getTaskWithMaxWeight(Set<DataFlowNode> readyTasks) {
+        int maxWeight = 0;
+        DataFlowNode taskWithMaxWeight = null;
+        for (DataFlowNode readyTask: readyTasks) {
+            if (readyTask.getWeight() > maxWeight) {
+                maxWeight = readyTask.getWeight();
+                taskWithMaxWeight = readyTask;
+            }
+        }
+        return taskWithMaxWeight;
+    }
+
+    @Override
+    public void printModel() {
+        System.out.println(modelOutput);
     }
 
     private int getEmptyProcessor() {
