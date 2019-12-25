@@ -96,4 +96,16 @@ public class Node {
             rightChild.print(buffer, childrenPrefix + "└── ", childrenPrefix + "    ");
         }
     }
+
+    public Lexeme getCurrentLexeme() {
+        return currentLexeme;
+    }
+
+    public Node getLeftChild() {
+        return leftChild;
+    }
+
+    public Node getRightChild() {
+        return rightChild;
+    }
 }
