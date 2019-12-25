@@ -30,22 +30,60 @@ public class DataFlowParallelModel implements ParallelModel {
         DataFlowNode dataFlowNode = (DataFlowNode) graphNode;
         // init queues
         System.out.println("Init queues");
-        moveTasksToQueues(dataFlowNode);
+        initTasksToQueues(dataFlowNode);
         printQueues();
+        System.out.println("\n" + modelOutput);
 
-        System.out.println(modelOutput);
+        while ((!readyTasks.isEmpty() || !otherTasks.isEmpty())) {
+            // at first try sequential algorithm
+            int emptyProcessor;
+            while ((emptyProcessor = getEmptyProcessor()) != 0 && !readyTasks.isEmpty()) {
+                DataFlowNode readyTask = readyTasks.iterator().next();
+                currentTasks.put(emptyProcessor, new RunningTask(readyTask, operationDurability.get(readyTask.getValue())));
+                readyTasks.remove(readyTask);
+            }
 
-        while (!readyTasks.isEmpty() && !otherTasks.isEmpty()) {
-            return;
+            // do a tact
+            modelOutput.append("\n");
+            modelOutput.append("|");
+            for (int i = 1; i <= processors; i++) {
+                RunningTask currentTask = currentTasks.get(i);
+                if (currentTask != null) {
+                    currentTask.completeTact();
+                    modelOutput.append(getOutputRowPartForProcessor(currentTask.toString()));
+                    if (currentTask.getTactsLast() == 0) {
+                        finishedTasks.add(currentTask.getTask());
+                        currentTasks.put(i, null);
+                    }
+                } else {
+                    modelOutput.append(getOutputRowPartForProcessor(""));
+                }
+                modelOutput.append("|");
+            }
+
+            // move other tasks to ready queues
+            checkReadyTasks(dataFlowNode);
+
+            System.out.println(modelOutput);
+            printQueues();
         }
     }
 
-    private void moveTasksToQueues(DataFlowNode dataFlowNode) {
+    private int getEmptyProcessor() {
+        for (int i = 1; i <= processors; i++) {
+            if (currentTasks.get((i)) == null) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    private void initTasksToQueues(DataFlowNode dataFlowNode) {
         if (dataFlowNode.getLeftChild() != null) {
-            moveTasksToQueues(dataFlowNode.getLeftChild());
+            initTasksToQueues(dataFlowNode.getLeftChild());
         }
         if (dataFlowNode.getRightChild() != null) {
-            moveTasksToQueues(dataFlowNode.getRightChild());
+            initTasksToQueues(dataFlowNode.getRightChild());
         }
         if (dataFlowNode.getLeftChild() == null && dataFlowNode.getRightChild() == null) {
             finishedTasks.add(dataFlowNode);
@@ -55,6 +93,25 @@ public class DataFlowParallelModel implements ParallelModel {
         }
         if (!finishedTasks.contains(dataFlowNode) && !readyTasks.contains(dataFlowNode)) {
             otherTasks.add(dataFlowNode);
+        }
+    }
+
+    private void checkReadyTasks(DataFlowNode dataFlowNode) {
+        if (!otherTasks.contains(dataFlowNode)) {
+            return;
+        }
+
+        if ((finishedTasks.contains(dataFlowNode.getLeftChild()) && finishedTasks.contains(dataFlowNode.getRightChild()))) {
+            readyTasks.add(dataFlowNode);
+            otherTasks.remove(dataFlowNode);
+            return;
+        }
+
+        if (dataFlowNode.getLeftChild() != null) {
+            checkReadyTasks(dataFlowNode.getLeftChild());
+        }
+        if (dataFlowNode.getRightChild() != null) {
+            checkReadyTasks(dataFlowNode.getRightChild());
         }
     }
 
@@ -114,6 +171,11 @@ public class DataFlowParallelModel implements ParallelModel {
 
         public void completeTact() {
             tactsLast--;
+        }
+
+        @Override
+        public String toString() {
+            return this.task.toString();
         }
     }
 }
